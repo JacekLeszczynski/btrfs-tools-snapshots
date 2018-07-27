@@ -1,13 +1,12 @@
 [Desktop Entry]
-Categories=Qt;KDE;Tools;
+Categories=Qt;KDE;System;Filesystem;
 Comment=Btrfs Tools Snapshots
-Exec=BtrfsToolsSnapshots
+Exec=btrfs-tools-snapshots
 GenericName=Btrfs Tools Snapshots
 Icon=btrfs-tools-snapshots
-Name=BtrfsToolsSnapshots
+Name=btrfs-tools-snapshots
 Type=Application
 X-KDE-StartupNotify=false
-Keywords=tools,kde;qt;
 
 X-Ayatana-Desktop-Shortcuts=Screen;Window
 
@@ -15,10 +14,10 @@ X-Ayatana-Desktop-Shortcuts=Screen;Window
 
 Comment[en_GB]=Btrfs Tools Snapshots
 GenericName[en_GB]=Btrfs Tools Snapshots
-Name[en_GB]=BtrfsToolsSnapshots
+Name[en_GB]=btrfs-tools-snapshots
 Icon[en_GB]=btrfs-tools-snapshots
 
 Comment[pl]=Obsługa punktów przywracania Btrfs
 GenericName[pl]=Obsługa punktów przywracania Btrfs
-Name[pl]=BtrfsToolsSnapshots
+Name[pl]=btrfs-tools-snapshots
 Icon[pl]=btrfs-tools-snapshots

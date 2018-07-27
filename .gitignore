@@ -1,4 +1,8 @@
-BtrfsTools.*
 project1.lps
 lib
 backup
+btrfs-tools-snapshots.amd64
+btrfs-tools-snapshots.debug
+btrfs-tools-snapshots.i386
+project1.res
+*.deb

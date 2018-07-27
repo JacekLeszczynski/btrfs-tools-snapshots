@@ -71,6 +71,11 @@ prepare_postinst() {
   echo '' >>debian/postinst
   echo 'fi' >>debian/postinst
   echo '' >>debian/postinst
+  echo 'if [ ! -e /etc/apt/sources.list.d/repozytorium_jacka_debian.list ]; then' >>debian/postinst
+  echo '  echo "deb https://packagecloud.io/repozytorium_jacka/debian/debian/ buster main" >/etc/apt/sources.list.d/repozytorium_jacka_debian.list' >>debian/postinst
+  echo '  echo "deb-src https://packagecloud.io/repozytorium_jacka/debian/debian/ buster main" >>/etc/apt/sources.list.d/repozytorium_jacka_debian.list' >>debian/postinst
+  echo 'fi' >>debian/postinst
+  echo '' >>debian/postinst
   echo 'exit 0' >>debian/postinst
   echo '' >>debian/postinst
 }
