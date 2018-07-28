@@ -1,6 +1,7 @@
 #!/bin/bash
 
 APPS="btrfs-tools-snapshots"
+APPS2="btrfs-tools-snapshots-gui"
 
 VER=`../$APPS.amd64 --ver`
 DATE=`date`
@@ -21,6 +22,7 @@ czysc_katalog() {
   rm -f postinst
   rm -f prerm
   rm -f ../usr/bin/$APPS
+  rm -f ../usr/bin/$APPS2
   rm -f -r ../usr/share/$APPS
   cd ..
 }
@@ -65,8 +67,10 @@ prepare_postinst() {
   echo '  AR=$(arch)' >>debian/postinst
   echo '  if [ "$AR" = "x86_64" ]; then' >>debian/postinst
   echo "    ln -s /usr/share/$APPS/$APPS.amd64 /usr/bin/$APPS" >>debian/postinst
+  echo "    ln -s /usr/share/$APPS/$APPS2.amd64 /usr/bin/$APPS2" >>debian/postinst
   echo '  else' >>debian/postinst
   echo "    ln -s /usr/share/$APPS/$APPS.i386 /usr/bin/$APPS" >>debian/postinst
+  echo "    ln -s /usr/share/$APPS/$APPS2.i386 /usr/bin/$APPS2" >>debian/postinst
   echo '  fi' >>debian/postinst
   echo '' >>debian/postinst
   echo 'fi' >>debian/postinst
@@ -85,6 +89,7 @@ prepare_prerm() {
   echo 'set -e' >> debian/prerm
   echo '# Automatically added by dh_installinit/11.2.1' >> debian/prerm
   echo "rm -f /usr/bin/$APPS" >> debian/prerm
+  echo "rm -f /usr/bin/$APPS2" >> debian/prerm
   echo '# End automatically added section' >> debian/prerm
 }
 
@@ -98,6 +103,8 @@ generuj_all_bit() {
   mkdir ./usr/share/$APPS
   cp ../../$APPS.i386 ./usr/share/$APPS/
   cp ../../$APPS.amd64 ./usr/share/$APPS/
+  cp ../../$APPS2.i386 ./usr/share/$APPS/
+  cp ../../$APPS2.amd64 ./usr/share/$APPS/
   fakeroot ./debian/rules binary
 }
 
@@ -107,6 +114,7 @@ generuj_32bit() {
   prepare_control 32
   prepare_changelog
   cp ../../$APPS.i386 ./usr/bin/$APPS
+  cp ../../$APPS2.i386 ./usr/bin/$APPS
   fakeroot ./debian/rules binary
 }
 
@@ -116,6 +124,7 @@ generuj_64bit() {
   prepare_control 64
   prepare_changelog
   cp ../../$APPS.amd64 ./usr/bin/$APPS
+  cp ../../$APPS2.amd64 ./usr/bin/$APPS
   fakeroot ./debian/rules binary
 }
 

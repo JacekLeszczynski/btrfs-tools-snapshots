@@ -50,4 +50,23 @@ object FMain: TFMain
     TabOrder = 3
     Visible = False
   end
+  object BitBtn4: TBitBtn
+    Left = 648
+    Height = 32
+    Top = 72
+    Width = 169
+    Caption = 'Cofnij do tej migawki'
+    Enabled = False
+    OnClick = BitBtn4Click
+    TabOrder = 4
+  end
+  object mess: TExtMessage
+    Caption = '<Auto>'
+    HelpContext = 0
+    PosTop = 0
+    PosLeft = 0
+    StringToCR = '^'
+    left = 96
+    top = 56
+  end
 end

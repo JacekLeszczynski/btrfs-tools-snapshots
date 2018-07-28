@@ -1,2 +1,3 @@
 [config]
 root=@
+update-grub=0

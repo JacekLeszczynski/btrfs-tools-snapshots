@@ -5,13 +5,13 @@ unit datamodule;
 interface
 
 uses
-  Classes, SysUtils, process, ExtParams, IniFiles, cverinfo;
+  Classes, SysUtils, process, ExtParams, IniFiles;
 
 type
 
   { Tdm }
 
-  Tdm = class(TDataModule)
+  Tdm = class
     params: TExtParams;
     proc: TProcess;
     procedure DataModuleCreate(Sender: TObject);
@@ -50,6 +50,7 @@ type
     function generuj_grub_menuitem: TStringList;
     function update_grub: integer;
     procedure generuj_btrfs_grub_migawki;
+    procedure wroc_do_migawki;
   end;
 
 var
@@ -58,7 +59,7 @@ var
 implementation
 
 uses
-  ecode, config, BaseUnix, Unix;
+  ecode, config, Unix, cverinfo;
 
 {$R *.lfm}
 
@@ -128,13 +129,12 @@ end;
 procedure Tdm.reboot;
 begin
   ss.Clear;
-  proc.Options:=[];
   proc.Parameters.Clear;
+  proc.Options:=[];
   proc.Executable:='shutdown';
   proc.Parameters.Add('-r');
   proc.Parameters.Add('now');
-  proc.Execute;
-  proc.Terminate(0);
+  if _TEST then writeln('shutdown -r now') else proc.Execute;
 end;
 
 function Tdm.spakuj(katalog: string): integer;
@@ -231,7 +231,7 @@ end;
 
 function Tdm.init: boolean;
 var
-  i: integer;
+  i,a: integer;
   s: string;
 begin
   if _DEBUG then exit;
@@ -259,8 +259,26 @@ begin
   end else begin
     result:=true;
   end;
+  (* ustawienie _SWIAT - czyli miejsca w którym się znajdujemy *)
+  for i:=0 to smount.Count-1 do
+  begin
+    s:=smount[i];
+    if pos('on / type',s)>0 then
+    begin
+      a:=pos('subvol=/',s);
+      if a>0 then
+      begin
+        delete(s,1,a+7);
+        a:=pos(')',s);
+        if a>0 then delete(s,a,100000);
+        _SWIAT:=s;
+      end;
+      break;
+    end;
+  end;
   (* ROOT *)
   if dm.params.IsParam('root') then _ROOT:=dm.params.GetValue('root') else _ROOT:=dm.ini.ReadString('config','root','@');
+  _UPDATE_GRUB:=dm.ini.ReadBool('config','update-grub',false);
 end;
 
 function Tdm.wersja: string;
@@ -282,6 +300,7 @@ begin
   proc.Parameters.Add('subvol='+subvol);
   proc.Parameters.Add(device);
   proc.Parameters.Add(mnt);
+  if _TEST then writeln('mount -o subvol='+subvol+' '+device+' '+mnt);
   proc.Execute;
   proc.Terminate(0);
 end;
@@ -294,6 +313,7 @@ begin
   proc.Parameters.Clear;
   proc.Executable:='umount';
   proc.Parameters.Add(mnt);
+  if _TEST then writeln('umount '+mnt);
   proc.Execute;
   proc.Terminate(0);
   if force then _MNT_COUNT:=0;
@@ -417,7 +437,7 @@ begin
   proc.Parameters.Add('set-default');
   proc.Parameters.Add(IntToStr(id));
   proc.Parameters.Add('/');
-  proc.Execute;
+  if _TEST then writeln('btrfs subvolume set-default '+IntToStr(id)+' /') else proc.Execute;
   ss.LoadFromStream(proc.Output);
   proc.Terminate(0);
   for i:=0 to ss.Count-1 do writeln(ss[i]);
@@ -506,7 +526,7 @@ begin
       begin
         if i>tab1.Count-1 then break;
         sciezka:=tab1[i];
-        tab2.Assign(dm.migawki(sciezka));
+        tab2.Assign(migawki(sciezka));
         wolumin:=tab1[i];
         for j:=0 to tab2.Count-1 do
         begin
@@ -536,11 +556,20 @@ begin
     for i:=0 to vol.Count-1 do
     begin
       pom:=vol[i];
-      if pos(s,pom)>0 then
+      sciezka:=StringReplace(pom,'   \> ','',[]);
+      sciezka:=GetLineToStr(sciezka,9,' ');
+      if (pos(s,pom)>0) and (sciezka=_SWIAT) then
       begin
         vol.Delete(i);
-        vol.Insert(i,pom+' [ *** Auto-Start *** ]');
-        break;
+        vol.Insert(i,pom+' [SI]');
+      end else if pos(s,pom)>0 then
+      begin
+        vol.Delete(i);
+        vol.Insert(i,pom+' [S]');
+      end else if sciezka=_SWIAT then
+      begin
+        vol.Delete(i);
+        vol.Insert(i,pom+' [I]');
       end;
     end;
     ss.Assign(vol);
@@ -676,6 +705,7 @@ var
   i,j,a: integer;
   s: string;
 begin
+  if not _UPDATE_GRUB then exit;
   ss.Clear;
   ss.LoadFromFile('/boot/grub/grub.cfg');
   for i:=0 to ss.Count-1 do
@@ -704,10 +734,11 @@ end;
 
 function Tdm.update_grub: integer;
 begin
+  if not _UPDATE_GRUB then exit;
   ss.Clear;
   proc.Parameters.Clear;
   proc.Executable:='update-grub';
-  proc.Execute;
+  if _TEST then writeln('update-grub') else proc.Execute;
   result:=proc.ExitCode;
   proc.Terminate(0);
 end;
@@ -719,6 +750,7 @@ var
   err: integer;
   vol: TStringList;
 begin
+  if not _UPDATE_GRUB then exit;
   vol:=TStringList.Create;
   try
     vol.Assign(dm.wczytaj_woluminy);
@@ -741,13 +773,114 @@ begin
     ss.Insert(0,'#!/bin/sh');
     ss.Insert(1,'exec tail -n +3 $0');
     ss.Insert(2,'');
-    ss.SaveToFile('/etc/grub.d/10_linux_btrfs');
-    fpChmod('/etc/grub.d/10_linux_btrfs',&755);
+    if _TEST then writeln('[Generowanie nowej konfiguracji GRUB]') else
+    begin
+      ss.SaveToFile('/etc/grub.d/10_linux_btrfs');
+      fpChmod('/etc/grub.d/10_linux_btrfs',&755);
+    end;
     err:=update_grub;
     if err<>0 then writeln('Błąd podczas wykonania polecenia "update-grub" nr '+IntToStr(err));
   finally
     vol.Free;
   end;
+end;
+
+procedure Tdm.wroc_do_migawki;
+var
+  i,id,a,new_id: integer;
+  s,nazwa,wlasciciel,migawki_do_usuniecia: string;
+  atr_s,atr_i,root_is_s,root_is_i,migawka: boolean;
+begin
+  (* zamontowanie zasobu *)
+  zamontuj(_DEVICE,_MNT,'/');
+  (* wczytanie woluminów i wczytanie informacji potrzebnych do wykonania operacji *)
+  wczytaj_woluminy;
+  if _TEST then
+  begin
+    writeln('Wczytany obraz woluminów jest następujący:');
+    writeln(ss.Text);
+  end;
+  root_is_s:=false;
+  root_is_i:=false;
+  migawki_do_usuniecia:='';
+  for i:=0 to ss.Count-1 do
+  begin
+    (* pobranie informacji *)
+    s:=ss[i];
+    a:=pos('   \> ',s);
+    migawka:=a>0;
+    s:=StringReplace(s,'   \> ','',[]);
+    id:=StrToInt(GetLineToStr(s,2,' '));
+    nazwa:=GetLineToStr(s,9,' ');
+    if not migawka then wlasciciel:=nazwa;
+    if pos('[SI]',s)>0 then
+    begin
+      atr_s:=true;
+      atr_i:=true;
+    end else if pos('[S]',s)>0 then
+    begin
+      atr_s:=true;
+      atr_i:=false;
+    end else if pos('[I]',s)>0 then
+    begin
+      atr_s:=false;
+      atr_i:=true;
+    end else begin
+      atr_s:=false;
+      atr_i:=false;
+    end;
+    if (nazwa=_ROOT) and atr_s then root_is_s:=true;
+    if (nazwa=_ROOT) and atr_i then root_is_i:=true;
+    if root_is_s and atr_i then new_id:=id;
+    if migawka and (wlasciciel=_ROOT) and (not atr_i) then migawki_do_usuniecia:=migawki_do_usuniecia+nazwa+#9;
+  end;
+  if root_is_i then
+  begin
+    writeln('Wykryto, iż system uruchomiony został z głównego woluminu, nie z migawki! Przerywam...');
+    odmontuj(_MNT);
+    exit;
+  end;
+  (* ustawienie katalogu operacji *)
+  proc.CurrentDirectory:=_MNT;
+  (* jeśli trzeba ustawiam nowego _ROOT na [S] *)
+  if root_is_s then set_default(new_id);
+  (* usunięcie _ROOT *)
+  proc.Parameters.Clear;
+  proc.Executable:='btrfs';
+  proc.Parameters.Add('subvolume');
+  proc.Parameters.Add('delete');
+  proc.Parameters.Add(_ROOT);
+  if _TEST then writeln('btrfs subvolume delete '+_ROOT) else proc.Execute;
+  proc.Terminate(0);
+  (* zmiana migawki na _ROOT *)
+  proc.Parameters.Clear;
+  proc.Executable:='mv';
+  proc.Parameters.Add(_SWIAT);
+  proc.Parameters.Add(_ROOT);
+  if _TEST then writeln('mv '+_SWIAT+' '+_ROOT) else proc.Execute;
+  proc.Terminate(0);
+  (* usunięcie niepotrzebnych migawek *)
+  i:=1;
+  while true do
+  begin
+    s:=GetLineToStr(migawki_do_usuniecia,i,#9);
+    if s='' then break;
+    proc.Parameters.Clear;
+    proc.Executable:='btrfs';
+    proc.Parameters.Add('subvolume');
+    proc.Parameters.Add('delete');
+    proc.Parameters.Add(s);
+    if _TEST then writeln('btrfs subvolume delete '+s) else proc.Execute;
+    proc.Terminate(0);
+    inc(i);
+  end;
+  (* odtworzenie informacji startowych i wykonanie update-grub *)
+  generuj_btrfs_grub_migawki;
+  (* czyszczenie i odmontowanie zasobu *)
+  proc.CurrentDirectory:='';
+  odmontuj(_MNT);
+  (* restart *)
+  reboot;
 end;
 
 end.

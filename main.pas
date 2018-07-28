@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons;
+  Buttons, ExtMessage;
 
 type
 
@@ -16,10 +16,13 @@ type
     BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
     BitBtn3: TBitBtn;
+    BitBtn4: TBitBtn;
+    mess: TExtMessage;
     lMount: TListBox;
     procedure BitBtn1Click(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
+    procedure BitBtn4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure lMountClick(Sender: TObject);
@@ -39,7 +42,7 @@ var
 implementation
 
 uses
-  config, datamodule, ecode, BaseUnix, Unix;
+  config, BaseUnix, Unix;
 
 {$R *.lfm}
 
@@ -49,6 +52,12 @@ procedure TFMain.FormCreate(Sender: TObject);
 begin
   lMountSciezki:=TStringList.Create;
   Init;
+  BitBtn4.Enabled:=not (_SWIAT=_ROOT);
+  if _SWIAT<>_ROOT then
+  begin
+    BitBtn1.Enabled:=false;
+    BitBtn2.Enabled:=false;
+  end;
 end;
 
 procedure TFMain.BitBtn1Click(Sender: TObject);
@@ -94,6 +103,16 @@ begin
   generuj_btrfs_grub_migawki;
 end;
 
+procedure TFMain.BitBtn4Click(Sender: TObject);
+begin
+  showmessage('Zostanie przywrócona migawka, stary wolumin zostanie usunięty i wszystkie pozostałe migawki zostaną usunięte. Tej operacji nie da się cofnąć! Stracisz wszystkie informacje przechowywane na usuwanych woluminach. Zostaniesz zapytany czy kontynuować i wykonać tą operację. W razie kontynuacji operacja zostanie wykonana i komputer automatycznie zrestartowany...');
+  if mess.ShowConfirmationYesNo('Kontynuować ?') then
+  begin
+    dm.wroc_do_migawki;
+    close;
+  end;
+end;
+
 procedure TFMain.FormDestroy(Sender: TObject);
 begin
   lMountSciezki.Free;
@@ -121,10 +140,13 @@ var
   s: string;
   migawka: boolean;
 begin
-  s:=lMount.Items[lMount.ItemIndex];
-  migawka:=pos('   \> ',s)>0;
-  BitBtn1.Enabled:=not migawka;
-  BitBtn2.Enabled:=migawka;
+  if _SWIAT=_ROOT then
+  begin
+    s:=lMount.Items[lMount.ItemIndex];
+    migawka:=pos('   \> ',s)>0;
+    BitBtn1.Enabled:=not migawka;
+    BitBtn2.Enabled:=migawka;
+  end;
 end;
 
 procedure TFMain.generuj_btrfs_grub_migawki;
@@ -134,6 +156,7 @@ var
   ss: TStringList;
   err: integer;
 begin
+  if not _UPDATE_GRUB then exit;
   wzor:=dm.generuj_grub_menuitem.Text;
   ss:=TStringList.Create;
   try
