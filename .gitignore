@@ -4,5 +4,8 @@ backup
 btrfs-tools-snapshots.amd64
 btrfs-tools-snapshots.debug
 btrfs-tools-snapshots.i386
+btrfs-tools-snapshots-gui.amd64
+btrfs-tools-snapshots-gui.debug
+btrfs-tools-snapshots-gui.i386
 project1.res
 *.deb
