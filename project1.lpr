@@ -51,6 +51,7 @@ begin
     writeln('    --set-root [nazwa woluminu]   - ustawienie woluminu root (wartość domyślna to ''@'')');
     writeln('    --set-grub <1|0>              - zezwolenie/blokada aktualizacji rekordu startowego grub');
     writeln('    --set-max-snapshouts <count>  - ustawienie maksymalnej ilości pamiętanych migawek (wartość 0 wyłącza mechanizm)');
+    writeln('    --set-auto-run <1|0>          - włączenie/wyłączenie automatycznej obsługi migawek przez system');
     writeln('    --device <urządzenie>         - tymczasowe ustawienie niestandardowego urządzenia');
     writeln('    --root <nazwa woluminu>       - tymczasowe ustawienie niestandardowego woluminu root');
     writeln('    --force                       - wymuszenie wykonania');
@@ -132,6 +133,12 @@ begin
     dm.ini.WriteInteger('snapshots','max',a);
     force_exit:=true;
   end;
+  if dm.params.IsParam('set-auto-run') then
+  begin
+    pom:=dm.params.GetValue('set-auto-run');
+    if pom='1' then dm.ini.WriteBool('config','auto-run',true) else dm.ini.WriteBool('config','auto-run',false);
+    force_exit:=true;
+  end;
   if force_exit then
   begin
     Terminate;
@@ -172,6 +179,7 @@ begin
   if dm.params.IsParam('convert-partition') then dm.convert_partition(dm.params.GetValue('convert-partition'),dm.params.GetValue('subvolume'));
   if dm.params.IsParam('przywroc-migawke') then dm.wroc_do_migawki;
   if dm.params.IsParam('usun-stare-migawki') then dm.usun_stare_migawki;
+  if dm.params.IsParam('auto') then dm.autoprogram;
   if _MNT_COUNT>0 then dm.odmontuj(_MNT,true);
   Terminate;
   {$ENDIF}

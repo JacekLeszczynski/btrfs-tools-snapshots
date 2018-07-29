@@ -23,6 +23,7 @@ type
     function wyczysc_zasob(katalog: string): integer;
     function nowy_wolumin(nazwa: string): integer;
     function usun_archiwum(katalog: string): integer;
+    function is_root_active: boolean;
   public
     ini: TIniFile;
     params: TExtParams;
@@ -52,6 +53,7 @@ type
     procedure generuj_btrfs_grub_migawki;
     procedure wroc_do_migawki;
     procedure usun_stare_migawki;
+    procedure autoprogram;
   end;
 
 const
@@ -68,6 +70,7 @@ var
   _SWIAT: string;
   _TEST: boolean = false;
   _MAX_COUNT_SNAPSHOTS: integer = 0;
+  _AUTO_RUN: boolean = false;
   dm: Tdm;
   TextSeparator: char;
 
@@ -278,12 +281,36 @@ begin
   proc.Terminate(0);
 end;
 
+function Tdm.is_root_active: boolean;
+var
+  b: boolean;
+  i: integer;
+  s,pom,nazwa: string;
+begin
+  b:=false;
+  wczytaj_woluminy(true);
+  for i:=0 to ss.Count-1 do
+  begin
+    s:=StringReplace(ss[i],'   \> ','',[]);
+    nazwa:=GetLineToStr(s,9,' ');
+    if nazwa=_ROOT then
+    begin
+      pom:=GetLineToStr(s,10,' ');
+      if pos('I',pom)>0 then b:=true;
+      break;
+    end;
+  end;
+  if _TEST then if b then writeln('Info: System uruchomiony z woluminu root.') else writeln('Uwaga: System uruchomiony z migawki!');
+  result:=b;
+end;
+
 constructor Tdm.Create;
 begin
   params:=TExtParams.Create(nil);
   params.ParamsForValues.Add('set-root');
   params.ParamsForValues.Add('set-grub');
   params.ParamsForValues.Add('set-default');
+  params.ParamsForValues.Add('set-auto-run');
   params.ParamsForValues.Add('set-max-snapshouts');
   params.ParamsForValues.Add('del');
   params.ParamsForValues.Add('convert-partition');
@@ -359,6 +386,7 @@ begin
   if dm.params.IsParam('root') then _ROOT:=dm.params.GetValue('root') else _ROOT:=dm.ini.ReadString('config','root','@');
   _UPDATE_GRUB:=dm.ini.ReadBool('config','update-grub',false);
   _MAX_COUNT_SNAPSHOTS:=dm.ini.ReadInteger('snapshots','max',0);
+  _AUTO_RUN:=dm.ini.ReadBool('config','auto-run',false);
 end;
 
 function Tdm.wersja: string;
@@ -697,7 +725,15 @@ var
 begin
   zamontuj(_DEVICE,_MNT,'/');
   migawka:='@'+_ROOT+'_'+FormatDateTime('yyyy-mm-dd',date);
-  if dm.list(migawka) then dm.usun_migawke(migawka);
+  if dm.list(migawka) then
+  begin
+    if force then dm.usun_migawke(migawka) else
+    begin
+      if _TEST then writeln('Info: Migawka istnieje, wychodzę...');
+      odmontuj(_MNT);
+      exit;
+    end;
+  end;
   proc.Parameters.Clear;
   proc.CurrentDirectory:=_MNT;
   proc.Executable:='btrfs';
@@ -705,7 +741,7 @@ begin
   proc.Parameters.Add('snapshot');
   proc.Parameters.Add(_ROOT);
   proc.Parameters.Add(migawka);
-  proc.Execute;
+  if _TEST then writeln('subvolume snapshot '+_ROOT+' '+migawka) else proc.Execute;
   proc.Terminate(0);
   proc.CurrentDirectory:='';
   odmontuj(_MNT);
@@ -1023,6 +1059,19 @@ begin
     lista.Free;
   end;
   (* czyszczenie i odmontowanie zasobu *)
+  odmontuj(_MNT);
+end;
+
+procedure Tdm.autoprogram;
+begin
+  if not _AUTO_RUN then exit;
+  zamontuj(_DEVICE,_MNT,'/');
+  if is_root_active then
+  begin
+    nowa_migawka;
+    usun_stare_migawki;
+    generuj_btrfs_grub_migawki;
+  end else if _TEST then writeln('Info: System uruchomiony z migawki - nic nie wykonuję!');
   odmontuj(_MNT);
 end;
 
