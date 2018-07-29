@@ -60,6 +60,15 @@ object FMain: TFMain
     OnClick = BitBtn4Click
     TabOrder = 4
   end
+  object BitBtn5: TBitBtn
+    Left = 648
+    Height = 29
+    Top = 440
+    Width = 169
+    Caption = 'Autoryzacja'
+    TabOrder = 5
+    Visible = False
+  end
   object mess: TExtMessage
     Caption = '<Auto>'
     HelpContext = 0

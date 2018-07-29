@@ -1,7 +1,7 @@
 [Desktop Entry]
 Categories=Qt;KDE;System;Filesystem;
 Comment=Btrfs Tools Snapshots
-Exec=btrfs-tools-snapshots-gui
+Exec=sudo btrfs-tools-snapshots-gui
 GenericName=Btrfs Tools Snapshots
 Icon=btrfs-tools-snapshots
 Name=btrfs-tools-snapshots

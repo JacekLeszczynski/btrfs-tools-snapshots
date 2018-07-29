@@ -1,0 +1,2 @@
+%btrfs-tools-snapshots ALL = (root) NOPASSWD:/usr/bin/btrfs-tools-snapshots
+%btrfs-tools-snapshots ALL = (root) NOPASSWD:/usr/bin/btrfs-tools-snapshots-gui

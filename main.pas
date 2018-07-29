@@ -17,6 +17,7 @@ type
     BitBtn2: TBitBtn;
     BitBtn3: TBitBtn;
     BitBtn4: TBitBtn;
+    BitBtn5: TBitBtn;
     mess: TExtMessage;
     lMount: TListBox;
     procedure BitBtn1Click(Sender: TObject);

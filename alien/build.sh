@@ -80,6 +80,12 @@ prepare_postinst() {
   echo '  echo "deb-src https://packagecloud.io/repozytorium_jacka/debian/debian/ buster main" >>/etc/apt/sources.list.d/repozytorium_jacka_debian.list' >>debian/postinst
   echo 'fi' >>debian/postinst
   echo '' >>debian/postinst
+  echo "groupadd -f --system $APPS" >>debian/postinst
+  echo "if [ -f /etc/sudoers.d/$APPS ]; then" >>debian/postinst
+  echo "  chown root:root /etc/sudoers.d/$APPS" >>debian/postinst
+  echo "  chmod 440 /etc/sudoers.d/$APPS" >>debian/postinst
+  echo "fi" >>debian/postinst
+  echo "" >>debian/postinst
   echo 'exit 0' >>debian/postinst
   echo '' >>debian/postinst
 }

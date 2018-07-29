@@ -42,7 +42,7 @@ type
     function whoami: string;
     function list_all: TStringList;
     function list(subvolume: string = ''): boolean;
-    function wczytaj_woluminy: TStringList;
+    function wczytaj_woluminy(only_root: boolean = false; only_snapshots: boolean = false): TStringList;
     procedure nowa_migawka(force: boolean = false);
     procedure nowa_migawka(zrodlo,cel: string);
     procedure usun_migawke(nazwa: string; force: boolean = false);
@@ -51,6 +51,7 @@ type
     function update_grub: integer;
     procedure generuj_btrfs_grub_migawki;
     procedure wroc_do_migawki;
+    procedure usun_stare_migawki;
   end;
 
 const
@@ -66,6 +67,7 @@ var
   _MNT_COUNT: integer = 0;
   _SWIAT: string;
   _TEST: boolean = false;
+  _MAX_COUNT_SNAPSHOTS: integer = 0;
   dm: Tdm;
   TextSeparator: char;
 
@@ -282,6 +284,7 @@ begin
   params.ParamsForValues.Add('set-root');
   params.ParamsForValues.Add('set-grub');
   params.ParamsForValues.Add('set-default');
+  params.ParamsForValues.Add('set-max-snapshouts');
   params.ParamsForValues.Add('del');
   params.ParamsForValues.Add('convert-partition');
   params.ParamsForValues.Add('subvolume');
@@ -355,6 +358,7 @@ begin
   (* ROOT *)
   if dm.params.IsParam('root') then _ROOT:=dm.params.GetValue('root') else _ROOT:=dm.ini.ReadString('config','root','@');
   _UPDATE_GRUB:=dm.ini.ReadBool('config','update-grub',false);
+  _MAX_COUNT_SNAPSHOTS:=dm.ini.ReadInteger('snapshots','max',0);
 end;
 
 function Tdm.wersja: string;
@@ -576,7 +580,8 @@ begin
   if subvolume='' then result:=true else result:=istnieje;
 end;
 
-function Tdm.wczytaj_woluminy: TStringList;
+function Tdm.wczytaj_woluminy(only_root: boolean; only_snapshots: boolean
+  ): TStringList;
 var
   id,i,j,a: integer;
   s,pom: string;
@@ -627,6 +632,37 @@ begin
       tab.Free;
       tab1.Free;
       tab2.Free;
+    end;
+
+    wolumin:='';
+    if only_root then
+    begin
+      for i:=0 to vol.Count-1 do
+      begin
+        pom:=vol[i];
+        if pos('   \> ',pom)=0 then
+        begin
+          wolumin:=GetLineToStr(pom,9,' ');
+          if only_snapshots then
+          begin
+            vol.Delete(i);
+            vol.Insert(i,'');
+            continue;
+          end;
+        end;
+        if wolumin<>_ROOT then
+        begin
+          vol.Delete(i);
+          vol.Insert(i,'');
+        end;
+      end;
+      for i:=vol.Count-1 downto 0 do if vol[i]='' then vol.Delete(i);
+      if only_snapshots then for i:=0 to vol.Count-1 do
+      begin
+        pom:=StringReplace(vol[i],'   \> ','',[]);
+        vol.Delete(i);
+        vol.Insert(i,pom);
+      end;
     end;
 
     for i:=0 to vol.Count-1 do
@@ -706,7 +742,7 @@ begin
   proc.Parameters.Add('subvolume');
   proc.Parameters.Add('delete');
   proc.Parameters.Add(nazwa);
-  proc.Execute;
+  if _TEST then writeln('btrfs subvolume delete '+nazwa) else proc.Execute;
   proc.Terminate(0);
   proc.CurrentDirectory:='';
   odmontuj(_MNT);
@@ -957,6 +993,37 @@ begin
   odmontuj(_MNT);
   (* restart *)
   reboot;
+end;
+
+procedure Tdm.usun_stare_migawki;
+var
+  lista: TStringList;
+  s: string;
+  i: integer;
+begin
+  (* zamontowanie zasobu *)
+  zamontuj(_DEVICE,_MNT,'/');
+  (* wczytanie woluminów i wczytanie informacji potrzebnych do wykonania operacji *)
+  wczytaj_woluminy(true,true);
+  if _TEST then
+  begin
+    writeln('Wczytany obraz migawek woluminu root jest następujący:');
+    writeln(ss.Text);
+  end;
+  lista:=TStringList.Create;
+  try
+    for i:=0 to ss.Count-1 do lista.Add(GetLineToStr(ss[i],9,' '));
+    lista.Sort;
+    for i:=0 to lista.Count-1 do
+    begin
+      s:=lista[i];
+      if i+1>_MAX_COUNT_SNAPSHOTS then usun_migawke(s);
+    end;
+  finally
+    lista.Free;
+  end;
+  (* czyszczenie i odmontowanie zasobu *)
+  odmontuj(_MNT);
 end;
 
 begin

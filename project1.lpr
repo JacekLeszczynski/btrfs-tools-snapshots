@@ -31,7 +31,7 @@ type
 
 procedure TBtrfsTools.DoRun;
 var
-  id,i: integer;
+  id,i,a: integer;
   force_exit,force,migawka: boolean;
   user,nazwa,pom: string;
   ss: TStringList;
@@ -48,8 +48,9 @@ begin
     writeln('  Dozwolone polecenia:');
     writeln('    --help                        - wywołanie pomocy');
     writeln('    --ver                         - wersja programu');
-    writeln('    --set-root [nazwa woluminu]   - ustawienie woluminu root');
+    writeln('    --set-root [nazwa woluminu]   - ustawienie woluminu root (wartość domyślna to ''@'')');
     writeln('    --set-grub <1|0>              - zezwolenie/blokada aktualizacji rekordu startowego grub');
+    writeln('    --set-max-snapshouts <count>  - ustawienie maksymalnej ilości pamiętanych migawek (wartość 0 wyłącza mechanizm)');
     writeln('    --device <urządzenie>         - tymczasowe ustawienie niestandardowego urządzenia');
     writeln('    --root <nazwa woluminu>       - tymczasowe ustawienie niestandardowego woluminu root');
     writeln('    --force                       - wymuszenie wykonania');
@@ -60,6 +61,7 @@ begin
     writeln('    --del <nazwa>                 - usunięcie istniejącej migawki');
     writeln('    --update-grub                 - generuj i aktualizuj grub');
     writeln('    --przywroc-migawke            - przywracanie migawkę na której aktualnie pracujesz, cała reszta zostanie usunięta');
+    writeln('    --usun-stare-migawki          - usuwa stare migawki pasujące do wzorca przestarzałych');
     writeln('    --test                        - nie wykonuj operacji, tylko pokazuj co byś zrobił (nie dotyczy gui)');
     writeln;
     writeln('  Operacje do wykonywania tylko w trybie ratunkowym (init 1):');
@@ -123,6 +125,13 @@ begin
     if pom='1' then dm.ini.WriteBool('config','update-grub',true) else dm.ini.WriteBool('config','update-grub',false);
     force_exit:=true;
   end;
+  if dm.params.IsParam('set-max-snapshouts') then
+  begin
+    pom:=dm.params.GetValue('set-max-snapshouts');
+    try if pom='' then a:=0 else a:=StrToInt(pom) except a:=0 end;
+    dm.ini.WriteInteger('snapshots','max',a);
+    force_exit:=true;
+  end;
   if force_exit then
   begin
     Terminate;
@@ -162,6 +171,7 @@ begin
   if dm.params.IsParam('update-grub') then dm.generuj_btrfs_grub_migawki;
   if dm.params.IsParam('convert-partition') then dm.convert_partition(dm.params.GetValue('convert-partition'),dm.params.GetValue('subvolume'));
   if dm.params.IsParam('przywroc-migawke') then dm.wroc_do_migawki;
+  if dm.params.IsParam('usun-stare-migawki') then dm.usun_stare_migawki;
   if _MNT_COUNT>0 then dm.odmontuj(_MNT,true);
   Terminate;
   {$ENDIF}
