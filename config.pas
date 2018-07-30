@@ -9,11 +9,21 @@ uses
 
 type
 
+  TMontowanie = record
+    zasob: string;
+    count: integer;
+  end;
+
+  TMontowanieOperacja = (omMount,omUmount);
+
   { Tdm }
 
   Tdm = class
   private
     ss: TStringList;
+    montowanie: array [0..5] of TMontowanie;
+    procedure montowanie_clear(zasob: string = '');
+    function montowanie_wykonaj(zasob: string; operacja: TMontowanieOperacja): boolean;
     function sciezka_wstecz(sciezka: string): string;
     function sciezka_nazwa_katalogu(sciezka: string): string;
     function sciezka_normalizacja(sciezka: string): string;
@@ -35,6 +45,7 @@ type
     function wersja: string;
     procedure zamontuj(device,mnt,subvol: string; force: boolean = false);
     procedure odmontuj(mnt: string; force: boolean = false);
+    procedure odmontuj_all;
     function migawki(nazwa: string): TStringList;
     function subvolume_to_strdatetime(nazwa: string): string;
     function get_default: integer;
@@ -66,7 +77,6 @@ var
   _ROOT: string = '@';
   _UPDATE_GRUB: boolean = false;
   _MNT: string = '/mnt';
-  _MNT_COUNT: integer = 0;
   _SWIAT: string;
   _TEST: boolean = false;
   _MAX_COUNT_SNAPSHOTS: integer = 0;
@@ -131,6 +141,64 @@ begin
 end;
 
 { Tdm }
+
+procedure Tdm.montowanie_clear(zasob: string);
+var
+  i: integer;
+begin
+  for i:=0 to 5 do
+  begin
+    if zasob='' then
+    begin
+      montowanie[i].zasob:='';
+      montowanie[i].count:=0;
+    end else if montowanie[i].zasob=zasob then
+    begin
+      montowanie[i].zasob:='';
+      montowanie[i].count:=0;
+      break;
+    end;
+  end;
+end;
+
+function Tdm.montowanie_wykonaj(zasob: string; operacja: TMontowanieOperacja): boolean;
+var
+  i,indeks,wolny: integer;
+begin
+  indeks:=-1; wolny:=-1;
+  (* odszukuję indeks *)
+  for i:=0 to 5 do
+  begin
+    if (wolny=-1) and (montowanie[i].zasob='') then wolny:=i;
+    if (indeks=-1) and (montowanie[i].zasob=zasob) then indeks:=i;
+    if indeks>-1 then break;
+  end;
+  if operacja=omMount then
+  begin
+    (* montowanie *)
+    if indeks=-1 then
+    begin
+      indeks:=wolny;
+      montowanie[indeks].zasob:=zasob;
+      montowanie[indeks].count:=1;
+      result:=true;
+    end else begin
+      inc(montowanie[indeks].count);
+      result:=false;
+    end;
+  end else begin
+    (* odmontowanie *)
+    if indeks=-1 then result:=false else
+    begin
+      dec(montowanie[indeks].count);
+      if montowanie[indeks].count=0 then
+      begin
+        montowanie[indeks].zasob:='';
+        result:=true;
+      end else result:=false;
+    end;
+  end;
+end;
 
 function Tdm.sciezka_wstecz(sciezka: string): string;
 var
@@ -204,7 +272,11 @@ begin
   proc.Parameters.Add(plik);
   proc.Parameters.Add(nazwa);
   proc.CurrentDirectory:=workdir;
-  proc.Execute;
+  if _TEST then
+  begin
+    writeln('cd '+workdir);
+    writeln('tar cvzf '+plik+' '+nazwa);
+  end else proc.Execute;
   result:=proc.ExitCode;
   proc.Terminate(0);
 end;
@@ -223,7 +295,11 @@ begin
   proc.Executable:='tar';
   proc.Parameters.Add('xvzf');
   proc.Parameters.Add(plik);
-  proc.Execute;
+  if _TEST then
+  begin
+    writeln('cd '+workdir);
+    writeln('tar xvzf '+plik);
+  end else proc.Execute;
   result:=proc.ExitCode;
   proc.Terminate(0);
 end;
@@ -242,7 +318,11 @@ begin
   proc.Parameters.Add('-f');
   proc.Parameters.Add('-R');
   proc.Parameters.Add(nazwa);
-  proc.Execute;
+  if _TEST then
+  begin
+    writeln('cd '+workdir);
+    writeln('rm -f -R '+nazwa);
+  end else proc.Execute;
   mkdir(workdir+'/'+nazwa);
   result:=proc.ExitCode;
   proc.Terminate(0);
@@ -257,7 +337,11 @@ begin
   proc.Parameters.Add('subvolume');
   proc.Parameters.Add('create');
   proc.Parameters.Add(nazwa);
-  proc.Execute;
+  if _TEST then
+  begin
+    writeln('cd '+_MNT);
+    writeln('subvolume create '+nazwa);
+  end else proc.Execute;
   result:=proc.ExitCode;
   proc.Terminate(0);
 end;
@@ -276,7 +360,11 @@ begin
   proc.Executable:='rm';
   proc.Parameters.Add('-f');
   proc.Parameters.Add(plik);
-  proc.Execute;
+  if _TEST then
+  begin
+    writeln('cd '+workdir);
+    writeln('rm -f '+plik);
+  end else proc.Execute;
   result:=proc.ExitCode;
   proc.Terminate(0);
 end;
@@ -306,6 +394,7 @@ end;
 
 constructor Tdm.Create;
 begin
+  montowanie_clear;
   params:=TExtParams.Create(nil);
   params.ParamsForValues.Add('set-root');
   params.ParamsForValues.Add('set-grub');
@@ -398,10 +487,12 @@ begin
 end;
 
 procedure Tdm.zamontuj(device, mnt, subvol: string; force: boolean);
+var
+  b: boolean;
 begin
   if _MONTOWANIE_RECZNE and (not force) then exit;
-  inc(_MNT_COUNT);
-  if (_MNT_COUNT>1) and (not force) then exit;
+  b:=montowanie_wykonaj(mnt,omMount);
+  if (not b) and (not force) then exit;
   proc.Parameters.Clear;
   proc.Executable:='mount';
   proc.Parameters.Add('-o');
@@ -414,17 +505,26 @@ begin
 end;
 
 procedure Tdm.odmontuj(mnt: string; force: boolean);
+var
+  b: boolean;
 begin
   if _MONTOWANIE_RECZNE and (not force) then exit;
-  dec(_MNT_COUNT);
-  if (_MNT_COUNT>0) and (not force) then exit;
+  b:=montowanie_wykonaj(mnt,omUmount);
+  if (not b) and (not force) then exit;
   proc.Parameters.Clear;
   proc.Executable:='umount';
   proc.Parameters.Add(mnt);
   if _TEST then writeln('umount '+mnt);
   proc.Execute;
   proc.Terminate(0);
-  if force then _MNT_COUNT:=0;
+  if force then montowanie_clear(mnt);
+end;
+
+procedure Tdm.odmontuj_all;
+var
+  i: integer;
+begin
+  for i:=0 to 5 do if montowanie[i].zasob<>'' then odmontuj(montowanie[i].zasob,true);
 end;
 
 function Tdm.migawki(nazwa: string): TStringList;

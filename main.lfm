@@ -2,10 +2,10 @@ object FMain: TFMain
   Left = 384
   Height = 516
   Top = 186
-  Width = 973
+  Width = 826
   Caption = 'Btrfs Tools'
   ClientHeight = 516
-  ClientWidth = 973
+  ClientWidth = 826
   DesignTimePPI = 94
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -55,7 +55,7 @@ object FMain: TFMain
     Height = 32
     Top = 72
     Width = 169
-    Caption = 'Cofnij do tej migawki'
+    Caption = 'Przywróć do migawki'
     Enabled = False
     OnClick = BitBtn4Click
     TabOrder = 4

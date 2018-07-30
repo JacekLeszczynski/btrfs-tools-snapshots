@@ -180,7 +180,7 @@ begin
   if dm.params.IsParam('przywroc-migawke') then dm.wroc_do_migawki;
   if dm.params.IsParam('usun-stare-migawki') then dm.usun_stare_migawki;
   if dm.params.IsParam('auto') then dm.autoprogram;
-  if _MNT_COUNT>0 then dm.odmontuj(_MNT,true);
+  dm.odmontuj_all;
   Terminate;
   {$ENDIF}
 end;
