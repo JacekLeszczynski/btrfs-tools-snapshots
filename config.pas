@@ -181,9 +181,11 @@ begin
       indeks:=wolny;
       montowanie[indeks].zasob:=zasob;
       montowanie[indeks].count:=1;
+      //if _TEST then writeln('Info: Zgoda na zamontowanie udzielona.');
       result:=true;
     end else begin
       inc(montowanie[indeks].count);
+      //if _TEST then writeln('Info: Zgoda na zamontowanie nie udzielona.');
       result:=false;
     end;
   end else begin
@@ -194,8 +196,12 @@ begin
       if montowanie[indeks].count=0 then
       begin
         montowanie[indeks].zasob:='';
+        //if _TEST then writeln('Info: Zgoda na odmontowanie udzielona.');
         result:=true;
-      end else result:=false;
+      end else begin
+        //if _TEST then writeln('Info: Zgoda na odmontowanie nie udzielona.');
+        result:=false;
+      end;
     end;
   end;
 end;
@@ -274,11 +280,14 @@ begin
   proc.CurrentDirectory:=workdir;
   if _TEST then
   begin
-    writeln('cd '+workdir);
-    writeln('tar cvzf '+plik+' '+nazwa);
-  end else proc.Execute;
-  result:=proc.ExitCode;
-  proc.Terminate(0);
+    writeln('cd '+workdir+' && tar cvzf '+plik+' '+nazwa);
+    result:=0;
+  end else begin
+    proc.Execute;
+    result:=proc.ExitCode;
+    proc.Terminate(0);
+  end;
+  proc.CurrentDirectory:='';
 end;
 
 function Tdm.rozpakuj(katalog: string): integer;
@@ -297,11 +306,14 @@ begin
   proc.Parameters.Add(plik);
   if _TEST then
   begin
-    writeln('cd '+workdir);
-    writeln('tar xvzf '+plik);
-  end else proc.Execute;
-  result:=proc.ExitCode;
-  proc.Terminate(0);
+    writeln('cd '+workdir+' && tar xvzf '+plik);
+    result:=0;
+  end else begin
+    proc.Execute;
+    result:=proc.ExitCode;
+    proc.Terminate(0);
+  end;
+  proc.CurrentDirectory:='';
 end;
 
 function Tdm.wyczysc_zasob(katalog: string): integer;
@@ -320,12 +332,16 @@ begin
   proc.Parameters.Add(nazwa);
   if _TEST then
   begin
-    writeln('cd '+workdir);
-    writeln('rm -f -R '+nazwa);
-  end else proc.Execute;
-  mkdir(workdir+'/'+nazwa);
-  result:=proc.ExitCode;
-  proc.Terminate(0);
+    writeln('cd '+workdir+' && rm -f -R '+nazwa);
+    writeln('mkdir '+workdir+'/'+nazwa);
+    result:=0;
+  end else begin
+    proc.Execute;
+    mkdir(workdir+'/'+nazwa);
+    result:=proc.ExitCode;
+    proc.Terminate(0);
+  end;
+  proc.CurrentDirectory:='';
 end;
 
 function Tdm.nowy_wolumin(nazwa: string): integer;
@@ -339,11 +355,14 @@ begin
   proc.Parameters.Add(nazwa);
   if _TEST then
   begin
-    writeln('cd '+_MNT);
-    writeln('subvolume create '+nazwa);
-  end else proc.Execute;
-  result:=proc.ExitCode;
-  proc.Terminate(0);
+    writeln('cd '+_MNT+' && btrfs subvolume create '+nazwa);
+    result:=0;
+  end else begin
+    proc.Execute;
+    result:=proc.ExitCode;
+    proc.Terminate(0);
+  end;
+  proc.CurrentDirectory:='';
 end;
 
 function Tdm.usun_archiwum(katalog: string): integer;
@@ -362,11 +381,14 @@ begin
   proc.Parameters.Add(plik);
   if _TEST then
   begin
-    writeln('cd '+workdir);
-    writeln('rm -f '+plik);
-  end else proc.Execute;
-  result:=proc.ExitCode;
-  proc.Terminate(0);
+    writeln('cd '+workdir+' && rm -f '+plik);
+    result:=0;
+  end else begin
+    proc.Execute;
+    result:=proc.ExitCode;
+    proc.Terminate(0);
+  end;
+  proc.CurrentDirectory:='';
 end;
 
 function Tdm.is_root_active: boolean;
@@ -499,9 +521,18 @@ begin
   proc.Parameters.Add('subvol='+subvol);
   proc.Parameters.Add(device);
   proc.Parameters.Add(mnt);
-  if _TEST then writeln('mount -o subvol='+subvol+' '+device+' '+mnt);
-  proc.Execute;
-  proc.Terminate(0);
+  if _TEST then
+  begin
+    writeln('mount -o subvol='+subvol+' '+device+' '+mnt);
+    if mnt=_MNT then
+    begin
+      proc.Execute;
+      proc.Terminate(0);
+    end;
+  end else begin
+    proc.Execute;
+    proc.Terminate(0);
+  end;
 end;
 
 procedure Tdm.odmontuj(mnt: string; force: boolean);
@@ -514,9 +545,18 @@ begin
   proc.Parameters.Clear;
   proc.Executable:='umount';
   proc.Parameters.Add(mnt);
-  if _TEST then writeln('umount '+mnt);
-  proc.Execute;
-  proc.Terminate(0);
+  if _TEST then
+  begin
+    writeln('umount '+mnt);
+    if mnt=_MNT then
+    begin
+      proc.Execute;
+      proc.Terminate(0);
+    end;
+  end else begin
+    proc.Execute;
+    proc.Terminate(0);
+  end;
   if force then montowanie_clear(mnt);
 end;
 
@@ -524,7 +564,7 @@ procedure Tdm.odmontuj_all;
 var
   i: integer;
 begin
-  for i:=0 to 5 do if montowanie[i].zasob<>'' then odmontuj(montowanie[i].zasob,true);
+  for i:=5 to 0 do if montowanie[i].zasob<>'' then odmontuj(montowanie[i].zasob,true);
 end;
 
 function Tdm.migawki(nazwa: string): TStringList;
