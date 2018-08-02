@@ -19,6 +19,7 @@ czysc_katalog() {
   rm -f control
   rm -f changelog
   rm -f files
+  rm -f preinst
   rm -f postinst
   rm -f prerm
   rm -f ../usr/bin/$APPS
