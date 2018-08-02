@@ -924,10 +924,80 @@ begin
   odmontuj(_MNT);
 end;
 
+procedure generuj_nowy_fstab(katalog,wolumin: string; var fstab,froot: TStringList);
+var
+  i,a: integer;
+  s,s1,s2,s3,s4,s5,s6,root,pom,s44: string;
+begin
+  (* szukam roota *)
+  for i:=0 to fstab.Count-1 do
+  begin
+    s:=fstab[i];
+    if s='' then continue;
+    if s[1]='#' then continue;
+    s1:=GetLineToStr(s,1,' ');
+    s2:=GetLineToStr(s,2,' ');
+    s3:=GetLineToStr(s,3,' ');
+    s4:=GetLineToStr(s,4,' ');
+    s5:=GetLineToStr(s,5,' ');
+    s6:=GetLineToStr(s,6,' ');
+    if s2='/' then break;
+  end;
+  (* przepisuję wszystkie woluminy pasujące do tej partycji *)
+  for i:=0 to fstab.Count-1 do
+  begin
+    s:=fstab[i];
+    if s='' then continue;
+    if s[1]='#' then continue;
+    if GetLineToStr(s,1,' ')=s1 then froot.Add(s);
+  end;
+  (* usuwam te wpisy z fstab *)
+  for i:=fstab.Count-1 downto 0 do
+  begin
+    s:=fstab[i];
+    if s='' then continue;
+    if s[1]='#' then continue;
+    if GetLineToStr(s,1,' ')=s1 then
+    begin
+      fstab.Delete(i);
+      if GetLineToStr(s,2,' ')='/' then
+      begin
+        fstab.Insert(i,'$ROOT$');
+        root:=s;
+      end;
+    end;
+  end;
+  (* dodaję nowy wpis *)
+  s1:=GetLineToStr(root,1,' ');
+  s2:=GetLineToStr(root,2,' ');
+  s3:=GetLineToStr(root,3,' ');
+  s4:=GetLineToStr(root,4,' ');
+  s5:=GetLineToStr(root,5,' ');
+  s6:=GetLineToStr(root,6,' ');
+  if pos('subvol=',s4)=0 then s4:=s4+',subvol='+wolumin else
+  begin
+    (* ręczna aktualizacja atrybutu *)
+    i:=1; s44:=s4; s4:='';
+    while true do
+    begin
+      pom:=GetLineToStr(s44,i,',');
+      if pom='' then break;
+      if pos('subvol=',pom)>0 then s4:=s4+',subvol='+wolumin else s4:=s4+','+pom;
+      inc(i);
+    end;
+    if s4[1]=',' then delete(s4,1,1);
+  end;
+  s:=s1+' '+katalog+' '+s3+' '+s4+' '+s5+' '+s6;
+  froot.Add(s);
+  froot.Sort;
+end;
+
 procedure Tdm.convert_partition(sciezka, nazwa_woluminu: string);
 var
   subvolume: string;
   exitcode: integer;
+  fstab,froot: TStringList;
+  fstab_root: string;
 begin
   (* określenie nazwy woluminu *)
   subvolume:='';
@@ -943,9 +1013,15 @@ begin
     exit;
   end;
   (* wykonuję procedurę przekonwertowania katalogu *)
-  writeln('Montuję zasób główny...');
-  zamontuj(_DEVICE,_MNT,'/');
+  fstab:=TStringList.Create;
+  froot:=TStringList.Create;
   try
+    fstab.LoadFromFile('/etc/fstab');
+    generuj_nowy_fstab(sciezka,subvolume,fstab,froot);
+    writeln(fstab.Text);
+    writeln(froot.Text);
+    writeln('Montuję zasób główny...');
+    zamontuj(_DEVICE,_MNT,'/');
     writeln('Pakuję zawartość zasobu...');
     exitcode:=spakuj(sciezka);
     if exitcode<>0 then
@@ -984,6 +1060,8 @@ begin
   finally
     writeln('Odmontowuję zasób główny...');
     odmontuj(_MNT);
+    fstab.Free;
+    froot.Free;
   end;
 end;
 

@@ -57,6 +57,19 @@ prepare_changelog() {
   echo " -- Jacek Leszczyński <sam@bialan.pl>  $DATE" >> debian/changelog
 }
 
+prepare_preinst() {
+  echo '#!/bin/sh' >debian/preinst
+  echo '' >>debian/preinst
+  echo 'set -e' >>debian/preinst
+  echo '' >>debian/preinst
+  echo 'if [ -e /etc/cron.daily/btrfs-tools-snapshots ]; then' >>debian/preinst
+  echo '  rm -f /etc/cron.daily/btrfs-tools-snapshots' >>debian/preinst
+  echo 'fi' >>debian/preinst
+  echo '' >>debian/preinst
+  echo 'exit 0' >>debian/preinst
+  echo '' >>debian/preinst
+}
+
 prepare_postinst() {
   echo '#!/bin/sh' >debian/postinst
   echo '' >>debian/postinst
@@ -104,6 +117,7 @@ generuj_all_bit() {
   czysc_katalog
   prepare_control 0
   prepare_changelog
+  prepare_preinst
   prepare_postinst
   prepare_prerm
   mkdir ./usr/share/$APPS
@@ -119,6 +133,7 @@ generuj_32bit() {
   czysc_katalog
   prepare_control 32
   prepare_changelog
+  prepare_preinst
   cp ../../$APPS.i386 ./usr/bin/$APPS
   cp ../../$APPS2.i386 ./usr/bin/$APPS
   fakeroot ./debian/rules binary
@@ -129,6 +144,7 @@ generuj_64bit() {
   czysc_katalog
   prepare_control 64
   prepare_changelog
+  prepare_preinst
   cp ../../$APPS.amd64 ./usr/bin/$APPS
   cp ../../$APPS2.amd64 ./usr/bin/$APPS
   fakeroot ./debian/rules binary
