@@ -63,9 +63,15 @@ prepare_preinst() {
   echo '' >>debian/preinst
   echo 'set -e' >>debian/preinst
   echo '' >>debian/preinst
-  echo 'if [ -e /etc/cron.daily/btrfs-tools-snapshots ]; then' >>debian/preinst
-  echo '  rm -f /etc/cron.daily/btrfs-tools-snapshots' >>debian/preinst
-  echo 'fi' >>debian/preinst
+#  echo 'if [ -e /etc/cron.daily/btrfs-tools-snapshots ]; then' >>debian/preinst
+#  echo '  rm -f /etc/cron.daily/btrfs-tools-snapshots' >>debian/preinst
+#  echo 'fi' >>debian/preinst
+#  echo 'if [ -e /etc/cron.weekly/btrfs-tools-snapshots ]; then' >>debian/preinst
+#  echo '  rm -f /etc/cron.weekly/btrfs-tools-snapshots' >>debian/preinst
+#  echo 'fi' >>debian/preinst
+#  echo 'if [ -e /etc/apt/apt.conf.d/80btrfs-tools-snapshots ]; then' >>debian/preinst
+#  echo '  rm -f /etc/apt/apt.conf.d/80btrfs-tools-snapshots' >>debian/preinst
+#  echo 'fi' >>debian/preinst
   echo '' >>debian/preinst
   echo 'exit 0' >>debian/preinst
   echo '' >>debian/preinst

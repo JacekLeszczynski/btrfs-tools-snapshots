@@ -5,7 +5,7 @@ unit config;
 interface
 
 uses
-  Classes, SysUtils, ExtParams, process, IniFiles;
+  Classes, SysUtils, ExtParams, process;
 
 type
 
@@ -15,6 +15,24 @@ type
   end;
 
   TMontowanieOperacja = (omMount,omUmount);
+
+  { TConfigFile }
+
+  TConfigFile = class
+  private
+    tab: TStringList;
+    procedure ResetFile;
+    procedure test;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function ReadString(zmienna: string; wartosc_domyslna: string = ''): string;
+    function ReadBool(zmienna: string; wartosc_domyslna: boolean = false): boolean;
+    function ReadInteger(zmienna: string; wartosc_domyslna: integer = 0): integer;
+    function WriteString(zmienna: string; wartosc: string): boolean;
+    function WriteBool(zmienna: string; wartosc: boolean): boolean;
+    function WriteInteger(zmienna: string; wartosc: integer): boolean;
+  end;
 
   { Tdm }
 
@@ -35,7 +53,7 @@ type
     function usun_archiwum(katalog: string): integer;
     function is_root_active: boolean;
   public
-    ini: TIniFile;
+    ini: TConfigFile;
     params: TExtParams;
     proc: TProcess;
     smount,sfstab: TStringList;
@@ -64,7 +82,7 @@ type
     procedure generuj_btrfs_grub_migawki;
     procedure wroc_do_migawki;
     procedure usun_stare_migawki;
-    procedure autoprogram;
+    procedure autoprogram(trigger: string = '');
   end;
 
 const
@@ -90,7 +108,7 @@ function StringToItemIndex(slist:TStrings;kod:string;wart_domyslna:integer=-1):i
 implementation
 
 uses
-  cverinfo, BaseUnix, Unix;
+  cverinfo, BaseUnix, Unix, IniFiles;
 
 function GetLineToStr(s: string; l: integer; separator: char; wynik: string
   ): string;
@@ -138,6 +156,215 @@ begin
      break;
    end;
    result:=a;
+end;
+
+{ TConfigFile }
+
+procedure TConfigFile.ResetFile;
+begin
+  tab.Clear;
+  tab.Add('#Wolumin root (domyślną wartością jest "@")');
+  tab.Add('volume_root="@"');
+  tab.Add('');
+  tab.Add('#Automatyczna aktualizacja plików startowych GRUB, dozwolone wartości to: yes|no.');
+  tab.Add('update-grub=yes');
+  tab.Add('');
+  tab.Add('#Automatyczne generowanie migawek w momencie spełnienia warunków.');
+  tab.Add('auto-run=yes');
+  tab.Add('');
+  tab.Add('#Utrzymuj na dysku ograniczoną ilość migawek, jeśli wartość zerowa, nie ograniczaj tej ilości.');
+  tab.Add('snapshots_max=2');
+  tab.Add('');
+  tab.Add('#Sposób wyzwalania tworzenia migawek (dostępne opcje: "cron.daily|cron.weekly|dpkg")');
+  tab.Add('trigger="cron.weekly"');
+  tab.SaveToFile(_CONF);
+end;
+
+procedure TConfigFile.test;
+var
+  ini: TIniFile;
+  s: string;
+  b1,b2: boolean;
+  a: integer;
+begin
+  if tab[0]='[config]' then
+  begin
+    ini:=TIniFile.Create(_CONF);
+    try
+      s:=ini.ReadString('config','root','@');
+      b1:=ini.ReadBool('config','update-grub',false);
+      b2:=ini.ReadBool('config','auto-run',false);
+      a:=ini.ReadInteger('snapshots','max',0);
+    finally
+      ini.Free;
+    end;
+    ResetFile;
+    WriteString('volume_root',s);
+    WriteBool('update-grub',b1);
+    WriteBool('auto-run',b2);
+    WriteInteger('snapshots-max',a);
+  end;
+end;
+
+constructor TConfigFile.Create;
+begin
+  tab:=TStringList.Create;
+  if FileExists(_CONF) then
+  begin
+    tab.LoadFromFile(_CONF);
+    test;
+  end else ResetFile;
+end;
+
+destructor TConfigFile.Destroy;
+begin
+  tab.Free;
+  inherited Destroy;
+end;
+
+function TConfigFile.ReadString(zmienna: string; wartosc_domyslna: string
+  ): string;
+var
+  i: integer;
+  s,s1,s2,pom: string;
+begin
+  pom:='';
+  for i:=0 to tab.Count-1 do
+  begin
+    s:=tab[i];
+    if s='' then continue;
+    if s[1]='#' then continue;
+    s1:=trim(GetLineToStr(s,1,'='));
+    s2:=trim(GetLineToStr(s,2,'='));
+    if s2<>'' then if s2[1]='"' then delete(s2,1,1);
+    if s2<>'' then if s2[length(s2)]='"' then delete(s2,length(s2),1);
+    if UpCase(s1)=UpCase(zmienna) then
+    begin
+      pom:=s2;
+      break;
+    end;
+  end;
+  if pom='' then result:=wartosc_domyslna else result:=pom;
+end;
+
+function TConfigFile.ReadBool(zmienna: string; wartosc_domyslna: boolean
+  ): boolean;
+var
+  s: string;
+  b: boolean;
+begin
+  s:=UpCase(ReadString(zmienna));
+  if (s='1') or (s='TRUE') or (s='ON') or (s='YES') then b:=true else
+  if (s='0') or (s='FALSE') or (s='OFF') or (s='NO') then b:=false else
+  b:=wartosc_domyslna;
+  result:=b;
+end;
+
+function TConfigFile.ReadInteger(zmienna: string; wartosc_domyslna: integer
+  ): integer;
+var
+  s: string;
+  a: integer;
+begin
+  s:=ReadString(zmienna);
+  try
+    a:=StrToInt(s);
+  except
+    a:=wartosc_domyslna;
+  end;
+  result:=a;
+end;
+
+function TConfigFile.WriteString(zmienna: string; wartosc: string): boolean;
+var
+  i,a: integer;
+  s,s1: string;
+  b: boolean;
+begin
+  b:=false;
+  for i:=0 to tab.Count-1 do
+  begin
+    s:=tab[i];
+    if s='' then continue;
+    if s[1]='#' then continue;
+    s1:=trim(GetLineToStr(s,1,'='));
+    if UpCase(s1)=UpCase(zmienna) then
+    begin
+      a:=i;
+      b:=true;
+      break;
+    end;
+  end;
+  if b then
+  begin
+    s:=s1+'="'+wartosc+'"';
+    tab.Delete(a);
+    tab.Insert(a,s);
+    tab.SaveToFile(_CONF);
+  end;
+  result:=b;
+end;
+
+function TConfigFile.WriteBool(zmienna: string; wartosc: boolean): boolean;
+var
+  i,a: integer;
+  s,s1,pom: string;
+  b: boolean;
+begin
+  b:=false;
+  for i:=0 to tab.Count-1 do
+  begin
+    s:=tab[i];
+    if s='' then continue;
+    if s[1]='#' then continue;
+    s1:=trim(GetLineToStr(s,1,'='));
+    if UpCase(s1)=UpCase(zmienna) then
+    begin
+      a:=i;
+      b:=true;
+      break;
+    end;
+  end;
+  if b then
+  begin
+    if wartosc then pom:='yes' else pom:='no';
+    s:=s1+'='+pom;
+    tab.Delete(a);
+    tab.Insert(a,s);
+    tab.SaveToFile(_CONF);
+  end;
+  result:=b;
+end;
+
+function TConfigFile.WriteInteger(zmienna: string; wartosc: integer): boolean;
+var
+  i,a: integer;
+  s,s1,pom: string;
+  b: boolean;
+begin
+  b:=false;
+  for i:=0 to tab.Count-1 do
+  begin
+    s:=tab[i];
+    if s='' then continue;
+    if s[1]='#' then continue;
+    s1:=trim(GetLineToStr(s,1,'='));
+    if UpCase(s1)=UpCase(zmienna) then
+    begin
+      a:=i;
+      b:=true;
+      break;
+    end;
+  end;
+  if b then
+  begin
+    pom:=IntToStr(wartosc);
+    s:=s1+'='+pom;
+    tab.Delete(a);
+    tab.Insert(a,s);
+    tab.SaveToFile(_CONF);
+  end;
+  result:=b;
 end;
 
 { Tdm }
@@ -428,12 +655,13 @@ begin
   params.ParamsForValues.Add('subvolume');
   params.ParamsForValues.Add('device');
   params.ParamsForValues.Add('root');
+  params.ParamsForValues.Add('trigger');
   proc:=TProcess.Create(nil);
   proc.Options:=[poWaitOnExit,poUsePipes];
   ss:=TStringList.Create;
   smount:=TStringList.Create;
   sfstab:=TStringList.Create;
-  ini:=TIniFile.Create(_CONF);
+  ini:=TConfigFile.Create;
 end;
 
 destructor Tdm.Destroy;
@@ -494,10 +722,10 @@ begin
     end;
   end;
   (* ROOT *)
-  if dm.params.IsParam('root') then _ROOT:=dm.params.GetValue('root') else _ROOT:=dm.ini.ReadString('config','root','@');
-  _UPDATE_GRUB:=dm.ini.ReadBool('config','update-grub',false);
-  _MAX_COUNT_SNAPSHOTS:=dm.ini.ReadInteger('snapshots','max',0);
-  _AUTO_RUN:=dm.ini.ReadBool('config','auto-run',false);
+  if dm.params.IsParam('root') then _ROOT:=dm.params.GetValue('root') else _ROOT:=dm.ini.ReadString('volume_root','@');
+  _UPDATE_GRUB:=dm.ini.ReadBool('update-grub',false);
+  _MAX_COUNT_SNAPSHOTS:=dm.ini.ReadInteger('snapshots_max',0);
+  _AUTO_RUN:=dm.ini.ReadBool('auto-run',false);
 end;
 
 function Tdm.wersja: string;
@@ -881,8 +1109,11 @@ begin
   proc.Parameters.Add('snapshot');
   proc.Parameters.Add(_ROOT);
   proc.Parameters.Add(migawka);
-  if _TEST then writeln('subvolume snapshot '+_ROOT+' '+migawka) else proc.Execute;
-  proc.Terminate(0);
+  if _TEST then writeln('btrfs subvolume snapshot '+_ROOT+' '+migawka) else
+  begin
+    proc.Execute;
+    proc.Terminate(0);
+  end;
   proc.CurrentDirectory:='';
   odmontuj(_MNT);
 end;
@@ -1117,6 +1348,7 @@ var
   vol: TStringList;
 begin
   if not _UPDATE_GRUB then exit;
+  zamontuj(_DEVICE,_MNT,'/');
   vol:=TStringList.Create;
   try
     vol.Assign(dm.wczytaj_woluminy);
@@ -1148,6 +1380,7 @@ begin
     if err<>0 then writeln('Błąd podczas wykonania polecenia "update-grub" nr '+IntToStr(err));
   finally
     vol.Free;
+    odmontuj(_MNT);
   end;
 end;
 
@@ -1253,7 +1486,7 @@ procedure Tdm.usun_stare_migawki;
 var
   lista: TStringList;
   s: string;
-  i: integer;
+  i,ile: integer;
 begin
   (* zamontowanie zasobu *)
   zamontuj(_DEVICE,_MNT,'/');
@@ -1268,10 +1501,12 @@ begin
   try
     for i:=0 to ss.Count-1 do lista.Add(GetLineToStr(ss[i],9,' '));
     lista.Sort;
-    for i:=0 to lista.Count-1 do
+    ile:=0;
+    for i:=lista.Count-1 downto 0 do
     begin
+      inc(ile);
       s:=lista[i];
-      if i+1>_MAX_COUNT_SNAPSHOTS then usun_migawke(s);
+      if ile>_MAX_COUNT_SNAPSHOTS then usun_migawke(s);
     end;
   finally
     lista.Free;
@@ -1280,9 +1515,14 @@ begin
   odmontuj(_MNT);
 end;
 
-procedure Tdm.autoprogram;
+procedure Tdm.autoprogram(trigger: string);
 begin
   if not _AUTO_RUN then exit;
+  if trigger<>'' then if ini.ReadString('trigger','cron.weekly')<>trigger then
+  begin
+    if _TEST then writeln('Konfiguracja nie pozwala na wykonanie tego uaktualnienia, wychodzę.');
+    exit;
+  end;
   zamontuj(_DEVICE,_MNT,'/');
   if is_root_active then
   begin

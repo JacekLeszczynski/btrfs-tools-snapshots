@@ -117,26 +117,26 @@ begin
   if dm.params.IsParam('set-root') then
   begin
     pom:=dm.params.GetValue('set-root');
-    if pom='' then dm.ini.WriteString('config','root','@') else dm.ini.WriteString('config','root',pom);
+    if pom='' then dm.ini.WriteString('volume_root','@') else dm.ini.WriteString('volume_root',pom);
     force_exit:=true;
   end;
   if dm.params.IsParam('set-grub') then
   begin
     pom:=dm.params.GetValue('set-grub');
-    if pom='1' then dm.ini.WriteBool('config','update-grub',true) else dm.ini.WriteBool('config','update-grub',false);
+    if pom='1' then dm.ini.WriteBool('update-grub',true) else dm.ini.WriteBool('update-grub',false);
     force_exit:=true;
   end;
   if dm.params.IsParam('set-max-snapshouts') then
   begin
     pom:=dm.params.GetValue('set-max-snapshouts');
     try if pom='' then a:=0 else a:=StrToInt(pom) except a:=0 end;
-    dm.ini.WriteInteger('snapshots','max',a);
+    dm.ini.WriteInteger('snapshots_max',a);
     force_exit:=true;
   end;
   if dm.params.IsParam('set-auto-run') then
   begin
     pom:=dm.params.GetValue('set-auto-run');
-    if pom='1' then dm.ini.WriteBool('config','auto-run',true) else dm.ini.WriteBool('config','auto-run',false);
+    if pom='1' then dm.ini.WriteBool('auto-run',true) else dm.ini.WriteBool('auto-run',false);
     force_exit:=true;
   end;
   if force_exit then
@@ -179,7 +179,7 @@ begin
   if dm.params.IsParam('convert-partition') then dm.convert_partition(dm.params.GetValue('convert-partition'),dm.params.GetValue('subvolume'));
   if dm.params.IsParam('przywroc-migawke') then dm.wroc_do_migawki;
   if dm.params.IsParam('usun-stare-migawki') then dm.usun_stare_migawki;
-  if dm.params.IsParam('auto') then dm.autoprogram;
+  if dm.params.IsParam('auto') then dm.autoprogram(dm.params.GetValue('trigger'));
   dm.odmontuj_all;
   Terminate;
   {$ENDIF}
