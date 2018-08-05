@@ -22,6 +22,7 @@ czysc_katalog() {
   rm -f preinst
   rm -f postinst
   rm -f prerm
+  rm -f postrm
   rm -f ../usr/bin/$APPS
   rm -f ../usr/bin/$APPS2
   rm -f -r ../usr/share/$APPS
@@ -63,16 +64,6 @@ prepare_preinst() {
   echo '' >>debian/preinst
   echo 'set -e' >>debian/preinst
   echo '' >>debian/preinst
-#  echo 'if [ -e /etc/cron.daily/btrfs-tools-snapshots ]; then' >>debian/preinst
-#  echo '  rm -f /etc/cron.daily/btrfs-tools-snapshots' >>debian/preinst
-#  echo 'fi' >>debian/preinst
-#  echo 'if [ -e /etc/cron.weekly/btrfs-tools-snapshots ]; then' >>debian/preinst
-#  echo '  rm -f /etc/cron.weekly/btrfs-tools-snapshots' >>debian/preinst
-#  echo 'fi' >>debian/preinst
-#  echo 'if [ -e /etc/apt/apt.conf.d/80btrfs-tools-snapshots ]; then' >>debian/preinst
-#  echo '  rm -f /etc/apt/apt.conf.d/80btrfs-tools-snapshots' >>debian/preinst
-#  echo 'fi' >>debian/preinst
-  echo '' >>debian/preinst
   echo 'exit 0' >>debian/preinst
   echo '' >>debian/preinst
 }
@@ -106,6 +97,8 @@ prepare_postinst() {
   echo "  chmod 440 /etc/sudoers.d/$APPS" >>debian/postinst
   echo "fi" >>debian/postinst
   echo "" >>debian/postinst
+  echo "btrfs-tools-snapshots --postinst" >>debian/postinst
+  echo "" >>debian/postinst
   echo 'exit 0' >>debian/postinst
   echo '' >>debian/postinst
 }
@@ -114,9 +107,27 @@ prepare_prerm() {
   echo '#!/bin/sh' > debian/prerm
   echo 'set -e' >> debian/prerm
   echo '# Automatically added by dh_installinit/11.2.1' >> debian/prerm
-  echo "rm -f /usr/bin/$APPS" >> debian/prerm
-  echo "rm -f /usr/bin/$APPS2" >> debian/prerm
+  #echo "rm -f /usr/bin/$APPS" >> debian/prerm
+  #echo "rm -f /usr/bin/$APPS2" >> debian/prerm
   echo '# End automatically added section' >> debian/prerm
+}
+
+prepare_postrm() {
+  echo '#!/bin/sh' > debian/postrm
+  echo 'set -e' >> debian/postrm
+  echo '# Automatically added by dh_installinit/11.2.1' >> debian/postrm
+  echo 'if [ -e /etc/cron.daily/btrfs-tools-snapshots ]; then' >>debian/postrm
+  echo '  rm -f /etc/cron.daily/btrfs-tools-snapshots' >>debian/postrm
+  echo 'fi' >>debian/postrm
+  echo 'if [ -e /etc/cron.weekly/btrfs-tools-snapshots ]; then' >>debian/postrm
+  echo '  rm -f /etc/cron.weekly/btrfs-tools-snapshots' >>debian/postrm
+  echo 'fi' >>debian/postrm
+  echo 'if [ -e /etc/apt/apt.conf.d/80btrfs-tools-snapshots ]; then' >>debian/postrm
+  echo '  rm -f /etc/apt/apt.conf.d/80btrfs-tools-snapshots' >>debian/postrm
+  echo 'fi' >>debian/postrm
+  echo "rm -f /usr/bin/$APPS" >> debian/postrm
+  echo "rm -f /usr/bin/$APPS2" >> debian/postrm
+  echo '# End automatically added section' >> debian/postrm
 }
 
 generuj_all_bit() {
@@ -124,9 +135,8 @@ generuj_all_bit() {
   czysc_katalog
   prepare_control 0
   prepare_changelog
-  prepare_preinst
   prepare_postinst
-  prepare_prerm
+  prepare_postrm
   mkdir ./usr/share/$APPS
   cp ../../$APPS.i386 ./usr/share/$APPS/
   cp ../../$APPS.amd64 ./usr/share/$APPS/
@@ -140,7 +150,8 @@ generuj_32bit() {
   czysc_katalog
   prepare_control 32
   prepare_changelog
-  prepare_preinst
+  prepare_postinst
+  prepare_postrm
   cp ../../$APPS.i386 ./usr/bin/$APPS
   cp ../../$APPS2.i386 ./usr/bin/$APPS
   fakeroot ./debian/rules binary
@@ -151,7 +162,8 @@ generuj_64bit() {
   czysc_katalog
   prepare_control 64
   prepare_changelog
-  prepare_preinst
+  prepare_postinst
+  prepare_postrm
   cp ../../$APPS.amd64 ./usr/bin/$APPS
   cp ../../$APPS2.amd64 ./usr/bin/$APPS
   fakeroot ./debian/rules binary

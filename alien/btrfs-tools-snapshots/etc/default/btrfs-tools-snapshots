@@ -1,3 +1,8 @@
+#Wersja pliku konfiguracyjnego
+#NIE EDYTUJ TEGO!
+#Wartość używana do automatycznych aktualizacji!
+ver=1
+
 #Wolumin root (domyślną wartością jest "@")
 volume_root="@"
 
@@ -10,5 +15,6 @@ auto-run=no
 #Utrzymuj na dysku ograniczoną ilość migawek, jeśli wartość zerowa, nie ograniczaj tej ilości.
 snapshots_max=2
 
-#Sposób wyzwalania tworzenia migawek (dostępne opcje: "cron.daily|cron.weekly|dpkg")
-trigger="cron.weekly"
+#Sposób wyzwalania tworzenia migawek (dostępne opcje: "dpkg|cron.daily|cron.weekly")
+#Domyślną wartością jest "dpkg"
+trigger="dpkg"

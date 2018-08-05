@@ -21,12 +21,13 @@ type
   TConfigFile = class
   private
     tab: TStringList;
+    plik: string;
     procedure ResetFile;
-    procedure test;
   public
-    constructor Create;
+    constructor Create(FileName: string);
     destructor Destroy; override;
     function ReadString(zmienna: string; wartosc_domyslna: string = ''): string;
+    function ReadString(indeks: integer): string;
     function ReadBool(zmienna: string; wartosc_domyslna: boolean = false): boolean;
     function ReadInteger(zmienna: string; wartosc_domyslna: integer = 0): integer;
     function WriteString(zmienna: string; wartosc: string): boolean;
@@ -40,6 +41,8 @@ type
   private
     ss: TStringList;
     montowanie: array [0..5] of TMontowanie;
+    procedure rewrite_ini(FileName: string);
+    procedure rewrite_old(old: TConfigFile; FileIsOld: boolean);
     procedure montowanie_clear(zasob: string = '');
     function montowanie_wykonaj(zasob: string; operacja: TMontowanieOperacja): boolean;
     function sciezka_wstecz(sciezka: string): string;
@@ -61,6 +64,7 @@ type
     destructor Destroy; override;
     function init: boolean;
     function wersja: string;
+    procedure postinst;
     procedure zamontuj(device,mnt,subvol: string; force: boolean = false);
     procedure odmontuj(mnt: string; force: boolean = false);
     procedure odmontuj_all;
@@ -87,7 +91,9 @@ type
 
 const
   _DEBUG = false;
+  _CONF_VER = 1;
   _CONF = '/etc/default/btrfs-tools-snapshots';
+  _CONF_OLD = '/etc/default/btrfs-tools-snapshots.dpkg-old';
 
 var
   _MONTOWANIE_RECZNE: boolean = false;
@@ -163,57 +169,34 @@ end;
 procedure TConfigFile.ResetFile;
 begin
   tab.Clear;
+  tab.Add('#Wersja pliku konfiguracyjnego');
+  tab.Add('#NIE EDYTUJ TEGO!');
+  tab.Add('#Wartość używana do automatycznych aktualizacji!');
+  tab.Add('ver=1');
+  tab.Add('');
   tab.Add('#Wolumin root (domyślną wartością jest "@")');
   tab.Add('volume_root="@"');
   tab.Add('');
   tab.Add('#Automatyczna aktualizacja plików startowych GRUB, dozwolone wartości to: yes|no.');
-  tab.Add('update-grub=yes');
+  tab.Add('update-grub=no');
   tab.Add('');
   tab.Add('#Automatyczne generowanie migawek w momencie spełnienia warunków.');
-  tab.Add('auto-run=yes');
+  tab.Add('auto-run=no');
   tab.Add('');
   tab.Add('#Utrzymuj na dysku ograniczoną ilość migawek, jeśli wartość zerowa, nie ograniczaj tej ilości.');
   tab.Add('snapshots_max=2');
   tab.Add('');
-  tab.Add('#Sposób wyzwalania tworzenia migawek (dostępne opcje: "cron.daily|cron.weekly|dpkg")');
-  tab.Add('trigger="cron.weekly"');
-  tab.SaveToFile(_CONF);
+  tab.Add('#Sposób wyzwalania tworzenia migawek (dostępne opcje: "dpkg|cron.daily|cron.weekly")');
+  tab.Add('#Domyślną wartością jest "dpkg"');
+  tab.Add('trigger="dpkg"');
+  tab.SaveToFile(plik);
 end;
 
-procedure TConfigFile.test;
-var
-  ini: TIniFile;
-  s: string;
-  b1,b2: boolean;
-  a: integer;
-begin
-  if tab[0]='[config]' then
-  begin
-    ini:=TIniFile.Create(_CONF);
-    try
-      s:=ini.ReadString('config','root','@');
-      b1:=ini.ReadBool('config','update-grub',false);
-      b2:=ini.ReadBool('config','auto-run',false);
-      a:=ini.ReadInteger('snapshots','max',0);
-    finally
-      ini.Free;
-    end;
-    ResetFile;
-    WriteString('volume_root',s);
-    WriteBool('update-grub',b1);
-    WriteBool('auto-run',b2);
-    WriteInteger('snapshots-max',a);
-  end;
-end;
-
-constructor TConfigFile.Create;
+constructor TConfigFile.Create(FileName: string);
 begin
   tab:=TStringList.Create;
-  if FileExists(_CONF) then
-  begin
-    tab.LoadFromFile(_CONF);
-    test;
-  end else ResetFile;
+  plik:=FileName;
+  if plik='' then ResetFile else tab.LoadFromFile(plik);
 end;
 
 destructor TConfigFile.Destroy;
@@ -245,6 +228,11 @@ begin
     end;
   end;
   if pom='' then result:=wartosc_domyslna else result:=pom;
+end;
+
+function TConfigFile.ReadString(indeks: integer): string;
+begin
+  if tab.Count-1<=indeks then result:=tab[indeks] else result:='';
 end;
 
 function TConfigFile.ReadBool(zmienna: string; wartosc_domyslna: boolean
@@ -300,7 +288,7 @@ begin
     s:=s1+'="'+wartosc+'"';
     tab.Delete(a);
     tab.Insert(a,s);
-    tab.SaveToFile(_CONF);
+    tab.SaveToFile(plik);
   end;
   result:=b;
 end;
@@ -331,7 +319,7 @@ begin
     s:=s1+'='+pom;
     tab.Delete(a);
     tab.Insert(a,s);
-    tab.SaveToFile(_CONF);
+    tab.SaveToFile(plik);
   end;
   result:=b;
 end;
@@ -362,12 +350,54 @@ begin
     s:=s1+'='+pom;
     tab.Delete(a);
     tab.Insert(a,s);
-    tab.SaveToFile(_CONF);
+    tab.SaveToFile(plik);
   end;
   result:=b;
 end;
 
 { Tdm }
+
+procedure Tdm.rewrite_ini(FileName: string);
+var
+  f: TIniFile;
+  s: string;
+  b1,b2: boolean;
+  a: integer;
+begin
+  f:=TIniFile.Create(FileName);
+  try
+    s:=f.ReadString('config','root','@');
+    b1:=f.ReadBool('config','update-grub',false);
+    b2:=f.ReadBool('config','auto-run',false);
+    a:=f.ReadInteger('snapshots','max',0);
+  finally
+    f.Free;
+  end;
+  ini.ResetFile;
+  ini.WriteString('volume_root',s);
+  ini.WriteBool('update-grub',b1);
+  ini.WriteBool('auto-run',b2);
+  ini.WriteInteger('snapshots-max',a);
+end;
+
+procedure Tdm.rewrite_old(old: TConfigFile; FileIsOld: boolean);
+var
+  s_volume_root,s_trigger: string;
+  b_update_grub,b_auto_run: boolean;
+  i_snapshots_max: integer;
+begin
+  s_volume_root:=old.ReadString('volume_root','@');
+  b_update_grub:=old.ReadBool('update-grub');
+  b_auto_run:=old.ReadBool('auto-run');
+  i_snapshots_max:=old.ReadInteger('snapshots-max',2);
+  s_trigger:=old.ReadString('trigger','dpkg');
+  if not FileIsOld then ini.ResetFile;
+  ini.WriteString('volume_root',s_volume_root);
+  ini.WriteBool('update-grub',b_update_grub);
+  ini.WriteBool('auto-run',b_auto_run);
+  ini.WriteInteger('snapshots-max',i_snapshots_max);
+  ini.WriteString('trigger',s_trigger);
+end;
 
 procedure Tdm.montowanie_clear(zasob: string);
 var
@@ -661,7 +691,7 @@ begin
   ss:=TStringList.Create;
   smount:=TStringList.Create;
   sfstab:=TStringList.Create;
-  ini:=TConfigFile.Create;
+  ini:=TConfigFile.Create(_CONF);
 end;
 
 destructor Tdm.Destroy;
@@ -734,6 +764,34 @@ var
 begin
   cverinfo.GetProgramVersion(major,minor,release,build);
   result:=IntToStr(major)+'.'+IntToStr(minor)+'.'+IntToStr(release)+'-'+IntToStr(build);
+end;
+
+procedure Tdm.postinst;
+var
+  old: TConfigFile;
+begin
+  if FileExists(_CONF_OLD) then
+  begin
+    (* jeśli podczas instalacji nastąpiła podmiana pliku konfiguracyjnego *)
+    old:=TConfigFile.Create(_CONF_OLD);
+    try
+      if old.ReadString(0)='[config]' then rewrite_ini(_CONF_OLD) else rewrite_old(old,true);
+      DeleteFile(_CONF_OLD);
+    finally
+      old.Free;
+    end;
+  end else begin
+    (* jeśli użytkownik nie zgodził się na podmianę pliku konfiguracyjnego *)
+    if ini.ReadInteger('ver')<_CONF_VER then
+    begin
+      old:=TConfigFile.Create(_CONF);
+      try
+        if old.ReadString(0)='[config]' then rewrite_ini(_CONF) else rewrite_old(old,false);
+      finally
+        old.Free;
+      end;
+    end;
+  end;
 end;
 
 procedure Tdm.zamontuj(device, mnt, subvol: string; force: boolean);

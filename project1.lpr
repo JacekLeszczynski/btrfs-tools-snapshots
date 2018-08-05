@@ -181,6 +181,7 @@ begin
   if dm.params.IsParam('usun-stare-migawki') then dm.usun_stare_migawki;
   if dm.params.IsParam('auto') then dm.autoprogram(dm.params.GetValue('trigger'));
   dm.odmontuj_all;
+  if dm.params.IsParam('postinst') then dm.postinst;
   Terminate;
   {$ENDIF}
 end;
