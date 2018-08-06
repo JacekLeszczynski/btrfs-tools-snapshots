@@ -65,7 +65,7 @@ begin
     writeln('    --usun-stare-migawki          - usuwa stare migawki pasujące do wzorca przestarzałych');
     writeln('    --test                        - nie wykonuj operacji, tylko pokazuj co byś zrobił (nie dotyczy gui)');
     writeln;
-    writeln('  Operacje do wykonywania tylko w trybie ratunkowym (init 1):');
+    writeln('  Operacje do wykonywania tylko w trybie ratunkowym (OPCJE EKSPERYMENTALNE):');
     writeln('  (UWAGA: Nie próbuj tego wykonywać w normalnie pracującym systemie!)');
     writeln('    --convert-partition <patch>   - przekonwertuj podany katalog do woluminu w locie');
     writeln('    --subvolume <nazwa>           - w konwersji użyj podanej nazwy woluminu');
@@ -76,6 +76,12 @@ begin
   if dm.params.IsParam('ver') then
   begin
     writeln(dm.wersja);
+    Terminate;
+    exit;
+  end;
+  if dm.params.IsParam('save-conf') then
+  begin
+    dm.ini.ResetFile(dm.params.GetValue('save-conf'));
     Terminate;
     exit;
   end;

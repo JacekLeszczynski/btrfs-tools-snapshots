@@ -3,7 +3,8 @@
 APPS="btrfs-tools-snapshots"
 APPS2="btrfs-tools-snapshots-gui"
 
-VER=`../$APPS.amd64 --ver`
+PROG="$APPS.amd64"
+VER=`../$PROG --ver`
 DATE=`date`
 echo "Generowana wersja pakietów to: $VER"
 
@@ -23,6 +24,7 @@ czysc_katalog() {
   rm -f postinst
   rm -f prerm
   rm -f postrm
+  rm -f ../etc/default/$APPS
   rm -f ../usr/bin/$APPS
   rm -f ../usr/bin/$APPS2
   rm -f -r ../usr/share/$APPS
@@ -138,6 +140,7 @@ generuj_all_bit() {
   prepare_postinst
   prepare_postrm
   mkdir ./usr/share/$APPS
+  `../../$PROG --save-conf ./etc/default/btrfs-tools-snapshots`
   cp ../../$APPS.i386 ./usr/share/$APPS/
   cp ../../$APPS.amd64 ./usr/share/$APPS/
   cp ../../$APPS2.i386 ./usr/share/$APPS/
@@ -152,6 +155,7 @@ generuj_32bit() {
   prepare_changelog
   prepare_postinst
   prepare_postrm
+  `../../$PROG --save-conf ./etc/default/btrfs-tools-snapshots`
   cp ../../$APPS.i386 ./usr/bin/$APPS
   cp ../../$APPS2.i386 ./usr/bin/$APPS
   fakeroot ./debian/rules binary
@@ -164,6 +168,7 @@ generuj_64bit() {
   prepare_changelog
   prepare_postinst
   prepare_postrm
+  `../../$PROG --save-conf ./etc/default/btrfs-tools-snapshots`
   cp ../../$APPS.amd64 ./usr/bin/$APPS
   cp ../../$APPS2.amd64 ./usr/bin/$APPS
   fakeroot ./debian/rules binary

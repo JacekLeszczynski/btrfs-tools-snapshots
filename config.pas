@@ -22,10 +22,10 @@ type
   private
     tab: TStringList;
     plik: string;
-    procedure ResetFile;
   public
     constructor Create(FileName: string);
     destructor Destroy; override;
+    procedure ResetFile(inny_plik: string = '');
     function ReadString(zmienna: string; wartosc_domyslna: string = ''): string;
     function ReadString(indeks: integer): string;
     function ReadBool(zmienna: string; wartosc_domyslna: boolean = false): boolean;
@@ -91,7 +91,7 @@ type
 
 const
   _DEBUG = false;
-  _CONF_VER = 1;
+  _CONF_VER = 2;
   _CONF = '/etc/default/btrfs-tools-snapshots';
   _CONF_OLD = '/etc/default/btrfs-tools-snapshots.dpkg-old';
 
@@ -105,6 +105,7 @@ var
   _TEST: boolean = false;
   _MAX_COUNT_SNAPSHOTS: integer = 0;
   _AUTO_RUN: boolean = false;
+  _GUI_ONLYROOT: boolean = true;
   dm: Tdm;
   TextSeparator: char;
 
@@ -166,32 +167,6 @@ end;
 
 { TConfigFile }
 
-procedure TConfigFile.ResetFile;
-begin
-  tab.Clear;
-  tab.Add('#Wersja pliku konfiguracyjnego');
-  tab.Add('#NIE EDYTUJ TEGO!');
-  tab.Add('#Wartość używana do automatycznych aktualizacji!');
-  tab.Add('ver=1');
-  tab.Add('');
-  tab.Add('#Wolumin root (domyślną wartością jest "@")');
-  tab.Add('volume_root="@"');
-  tab.Add('');
-  tab.Add('#Automatyczna aktualizacja plików startowych GRUB, dozwolone wartości to: yes|no.');
-  tab.Add('update-grub=no');
-  tab.Add('');
-  tab.Add('#Automatyczne generowanie migawek w momencie spełnienia warunków.');
-  tab.Add('auto-run=no');
-  tab.Add('');
-  tab.Add('#Utrzymuj na dysku ograniczoną ilość migawek, jeśli wartość zerowa, nie ograniczaj tej ilości.');
-  tab.Add('snapshots_max=2');
-  tab.Add('');
-  tab.Add('#Sposób wyzwalania tworzenia migawek (dostępne opcje: "dpkg|cron.daily|cron.weekly")');
-  tab.Add('#Domyślną wartością jest "dpkg"');
-  tab.Add('trigger="dpkg"');
-  tab.SaveToFile(plik);
-end;
-
 constructor TConfigFile.Create(FileName: string);
 begin
   tab:=TStringList.Create;
@@ -203,6 +178,47 @@ destructor TConfigFile.Destroy;
 begin
   tab.Free;
   inherited Destroy;
+end;
+
+procedure TConfigFile.ResetFile(inny_plik: string);
+var
+  t: TStringList;
+begin
+  t:=TStringList.Create;
+  try
+    t.Add('#Wersja pliku konfiguracyjnego');
+    t.Add('#NIE EDYTUJ TEGO!');
+    t.Add('#Wartość używana do automatycznych aktualizacji!');
+    t.Add('ver='+IntToStr(_CONF_VER));
+    t.Add('');
+    t.Add('#Wolumin root (domyślną wartością jest "@")');
+    t.Add('volume_root="@"');
+    t.Add('');
+    t.Add('#Automatyczna aktualizacja plików startowych GRUB, dozwolone wartości to: yes|no.');
+    t.Add('update-grub=no');
+    t.Add('');
+    t.Add('#Automatyczne generowanie migawek w momencie spełnienia warunków.');
+    t.Add('auto-run=no');
+    t.Add('');
+    t.Add('#Utrzymuj na dysku ograniczoną ilość migawek, jeśli wartość zerowa, nie ograniczaj tej ilości.');
+    t.Add('snapshots_max=2');
+    t.Add('');
+    t.Add('#Sposób wyzwalania tworzenia migawek (dostępne opcje: "dpkg|cron.daily|cron.weekly")');
+    t.Add('#Domyślną wartością jest "dpkg"');
+    t.Add('trigger="dpkg"');
+    t.Add('');
+    t.Add('#W gui programu na liście programu wyświetlaj tylko wolumin główny i jego migawki!');
+    t.Add('#Domyślnie opcja włączona, w celu pokazywania wszystkich bez ograniczeń, wyłącz tą opcję.');
+    t.Add('#Dozwolone wartości to: yes|no');
+    t.Add('gui-onlyroot=yes');
+    if inny_plik='' then
+    begin
+      tab.Assign(t);
+      tab.SaveToFile(plik);
+    end else t.SaveToFile(inny_plik);
+  finally
+    t.Free;
+  end;
 end;
 
 function TConfigFile.ReadString(zmienna: string; wartosc_domyslna: string
@@ -686,6 +702,7 @@ begin
   params.ParamsForValues.Add('device');
   params.ParamsForValues.Add('root');
   params.ParamsForValues.Add('trigger');
+  params.ParamsForValues.Add('save-conf');
   proc:=TProcess.Create(nil);
   proc.Options:=[poWaitOnExit,poUsePipes];
   ss:=TStringList.Create;
@@ -756,6 +773,7 @@ begin
   _UPDATE_GRUB:=dm.ini.ReadBool('update-grub',false);
   _MAX_COUNT_SNAPSHOTS:=dm.ini.ReadInteger('snapshots_max',0);
   _AUTO_RUN:=dm.ini.ReadBool('auto-run',false);
+  _GUI_ONLYROOT:=dm.ini.ReadBool('gui-onlyroot',true);
 end;
 
 function Tdm.wersja: string;
@@ -1531,6 +1549,8 @@ begin
     proc.Terminate(0);
     inc(i);
   end;
+  (* stworzenie nowej migawki do nowego wolumenu głównego *)
+  //nowa_migawka;
   (* odtworzenie informacji startowych i wykonanie update-grub *)
   generuj_btrfs_grub_migawki;
   (* czyszczenie i odmontowanie zasobu *)

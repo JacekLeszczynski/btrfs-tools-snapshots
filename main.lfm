@@ -52,12 +52,14 @@ object FMain: TFMain
   end
   object BitBtn4: TBitBtn
     Left = 648
-    Height = 32
+    Height = 80
     Top = 72
     Width = 169
     Caption = 'Przywróć do migawki'
     Enabled = False
+    Font.Color = clRed
     OnClick = BitBtn4Click
+    ParentFont = False
     TabOrder = 4
   end
   object BitBtn5: TBitBtn

@@ -54,6 +54,7 @@ begin
   lMountSciezki:=TStringList.Create;
   Init;
   BitBtn4.Enabled:=not (_SWIAT=_ROOT);
+  BitBtn4.Caption:='Przywróć do migawki'+#10+'z której uruchomiony'+#10+'jest system aktualnie';
   if _SWIAT<>_ROOT then
   begin
     BitBtn1.Enabled:=false;
@@ -131,7 +132,10 @@ end;
 
 procedure TFMain.wczytaj_woluminy;
 begin
-  lMount.Items.Assign(dm.wczytaj_woluminy);
+  if _GUI_ONLYROOT then
+    lMount.Items.Assign(dm.wczytaj_woluminy(true))
+  else
+    lMount.Items.Assign(dm.wczytaj_woluminy);
   lMount.ItemIndex:=0;
   refresh_przyciski;
 end;
