@@ -17,13 +17,14 @@ type
     BitBtn2: TBitBtn;
     BitBtn3: TBitBtn;
     BitBtn4: TBitBtn;
-    BitBtn5: TBitBtn;
+    BitBtn6: TBitBtn;
     mess: TExtMessage;
     lMount: TListBox;
     procedure BitBtn1Click(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
     procedure BitBtn4Click(Sender: TObject);
+    procedure BitBtn6Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure lMountClick(Sender: TObject);
@@ -113,6 +114,11 @@ begin
     dm.wroc_do_migawki;
     close;
   end;
+end;
+
+procedure TFMain.BitBtn6Click(Sender: TObject);
+begin
+  close;
 end;
 
 procedure TFMain.FormDestroy(Sender: TObject);

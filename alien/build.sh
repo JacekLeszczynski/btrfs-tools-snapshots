@@ -101,6 +101,17 @@ prepare_postinst() {
   echo "" >>debian/postinst
   echo "btrfs-tools-snapshots --postinst" >>debian/postinst
   echo "" >>debian/postinst
+  POM='DPkg::Pre-Invoke {"btrfs-tools-snapshots --auto --trigger dpkg";};'
+  echo "echo '$POM' > /etc/apt/apt.conf.d/80btrfs-tools-snapshots" >>debian/postinst
+  echo "echo '#!/bin/sh' > /etc/cron.daily/btrfs-tools-snapshots" >>debian/postinst
+  echo "echo '' >> /etc/cron.daily/btrfs-tools-snapshots" >>debian/postinst
+  echo "echo 'btrfs-tools-snapshots --auto --trigger cron.daily' >> /etc/cron.daily/btrfs-tools-snapshots" >>debian/postinst
+  echo "echo '#!/bin/sh' > /etc/cron.weekly/btrfs-tools-snapshots" >>debian/postinst
+  echo "echo '' >> /etc/cron.weekly/btrfs-tools-snapshots" >>debian/postinst
+  echo "echo 'btrfs-tools-snapshots --auto --trigger cron.weekly' >> /etc/cron.weekly/btrfs-tools-snapshots" >>debian/postinst
+  echo "chmod +x /etc/cron.daily/btrfs-tools-snapshots" >>debian/postinst
+  echo "chmod +x /etc/cron.weekly/btrfs-tools-snapshots" >>debian/postinst
+  echo "" >>debian/postinst
   echo 'exit 0' >>debian/postinst
   echo '' >>debian/postinst
 }
@@ -109,8 +120,15 @@ prepare_prerm() {
   echo '#!/bin/sh' > debian/prerm
   echo 'set -e' >> debian/prerm
   echo '# Automatically added by dh_installinit/11.2.1' >> debian/prerm
-  #echo "rm -f /usr/bin/$APPS" >> debian/prerm
-  #echo "rm -f /usr/bin/$APPS2" >> debian/prerm
+  echo 'if [ -e /etc/cron.daily/btrfs-tools-snapshots ]; then' >>debian/prerm
+  echo '  rm -f /etc/cron.daily/btrfs-tools-snapshots' >>debian/prerm
+  echo 'fi' >>debian/prerm
+  echo 'if [ -e /etc/cron.weekly/btrfs-tools-snapshots ]; then' >>debian/prerm
+  echo '  rm -f /etc/cron.weekly/btrfs-tools-snapshots' >>debian/prerm
+  echo 'fi' >>debian/prerm
+  echo 'if [ -e /etc/apt/apt.conf.d/80btrfs-tools-snapshots ]; then' >>debian/prerm
+  echo '  rm -f /etc/apt/apt.conf.d/80btrfs-tools-snapshots' >>debian/prerm
+  echo 'fi' >>debian/prerm
   echo '# End automatically added section' >> debian/prerm
 }
 
@@ -118,15 +136,6 @@ prepare_postrm() {
   echo '#!/bin/sh' > debian/postrm
   echo 'set -e' >> debian/postrm
   echo '# Automatically added by dh_installinit/11.2.1' >> debian/postrm
-  echo 'if [ -e /etc/cron.daily/btrfs-tools-snapshots ]; then' >>debian/postrm
-  echo '  rm -f /etc/cron.daily/btrfs-tools-snapshots' >>debian/postrm
-  echo 'fi' >>debian/postrm
-  echo 'if [ -e /etc/cron.weekly/btrfs-tools-snapshots ]; then' >>debian/postrm
-  echo '  rm -f /etc/cron.weekly/btrfs-tools-snapshots' >>debian/postrm
-  echo 'fi' >>debian/postrm
-  echo 'if [ -e /etc/apt/apt.conf.d/80btrfs-tools-snapshots ]; then' >>debian/postrm
-  echo '  rm -f /etc/apt/apt.conf.d/80btrfs-tools-snapshots' >>debian/postrm
-  echo 'fi' >>debian/postrm
   echo "rm -f /usr/bin/$APPS" >> debian/postrm
   echo "rm -f /usr/bin/$APPS2" >> debian/postrm
   echo '# End automatically added section' >> debian/postrm
@@ -138,6 +147,7 @@ generuj_all_bit() {
   prepare_control 0
   prepare_changelog
   prepare_postinst
+  prepare_prerm
   prepare_postrm
   mkdir ./usr/share/$APPS
   `../../$PROG --save-conf ./etc/default/btrfs-tools-snapshots`
@@ -154,6 +164,7 @@ generuj_32bit() {
   prepare_control 32
   prepare_changelog
   prepare_postinst
+  prepare_prerm
   prepare_postrm
   `../../$PROG --save-conf ./etc/default/btrfs-tools-snapshots`
   cp ../../$APPS.i386 ./usr/bin/$APPS
@@ -167,6 +178,7 @@ generuj_64bit() {
   prepare_control 64
   prepare_changelog
   prepare_postinst
+  prepare_prerm
   prepare_postrm
   `../../$PROG --save-conf ./etc/default/btrfs-tools-snapshots`
   cp ../../$APPS.amd64 ./usr/bin/$APPS

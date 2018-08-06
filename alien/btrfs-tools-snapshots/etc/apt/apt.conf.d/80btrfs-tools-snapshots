@@ -1,1 +1,0 @@
-DPkg::Pre-Invoke {"btrfs-tools-snapshots --auto --trigger dpkg";};

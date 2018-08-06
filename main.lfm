@@ -3,6 +3,7 @@ object FMain: TFMain
   Height = 516
   Top = 186
   Width = 826
+  BorderStyle = bsSingle
   Caption = 'Btrfs Tools'
   ClientHeight = 516
   ClientWidth = 826
@@ -43,7 +44,7 @@ object FMain: TFMain
   object BitBtn3: TBitBtn
     Left = 648
     Height = 29
-    Top = 475
+    Top = 440
     Width = 169
     Caption = 'Generuj Menu Startowe'
     OnClick = BitBtn3Click
@@ -62,14 +63,14 @@ object FMain: TFMain
     ParentFont = False
     TabOrder = 4
   end
-  object BitBtn5: TBitBtn
+  object BitBtn6: TBitBtn
     Left = 648
     Height = 29
-    Top = 440
+    Top = 475
     Width = 169
-    Caption = 'Autoryzacja'
+    Caption = 'Wyjście'
+    OnClick = BitBtn6Click
     TabOrder = 5
-    Visible = False
   end
   object mess: TExtMessage
     Caption = '<Auto>'
