@@ -1,6 +1,7 @@
 project1.lps
 lib
 backup
+notatnik
 btrfs-tools-snapshots.amd64
 btrfs-tools-snapshots.debug
 btrfs-tools-snapshots.i386
