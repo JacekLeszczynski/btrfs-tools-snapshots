@@ -128,7 +128,7 @@ fi
 
 $KOMENDA_POSTINST
 
-echo 'DPkg::Pre-Invoke {"btrfs-tools-snapshots --auto --trigger dpkg";};' > /etc/apt/apt.conf.d/80btrfs-tools-snapshots
+echo 'APT::Upgrade::Pre-Invoke {"btrfs-tools-snapshots --auto --trigger dpkg";};' > /etc/apt/apt.conf.d/80btrfs-tools-snapshots
 echo '#!/bin/sh' > /etc/cron.daily/btrfs-tools-snapshots
 echo '' >> /etc/cron.daily/btrfs-tools-snapshots
 echo 'btrfs-tools-snapshots --auto --trigger cron.daily' >> /etc/cron.daily/btrfs-tools-snapshots
