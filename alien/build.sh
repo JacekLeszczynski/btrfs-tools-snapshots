@@ -8,6 +8,12 @@ VER=`../$PROG --ver`
 DATE=`date`
 echo "Generowana wersja pakietów to: $VER"
 
+DOLAR='$'
+DOLAR_JEDEN='$1'
+DOLAR_ARCH='$(arch)'
+KOMENDA_POSTINST="$APPS --postinst"
+
+
 czysc_katalog() {
   echo "Czyszczę katalogi..."
   cd debian
@@ -31,115 +37,139 @@ czysc_katalog() {
   cd ..
 }
 
+
 prepare_control() {
-  echo "Source: $APPS" > debian/control
-  echo "Section: tools" >> debian/control
-  echo "Priority: extra" >> debian/control
-  echo "Maintainer: Jacek Leszczyński <sam@bialan.pl>" >> debian/control
-  echo "" >> debian/control
-  echo "Package: $APPS" >> debian/control
-  if [ "$1" == "0" ]; then
-    echo "Architecture: all" >> debian/control
-  fi
-  if [ "$1" == "32" ]; then
-    echo "Architecture: i386" >> debian/control
-  fi
-  if [ "$1" == "64" ]; then
-    echo "Architecture: amd64" >> debian/control
-  fi
-  echo "Depends: ${shlibs:Depends}" >> debian/control
-  echo "Description: System punktów przywracania BTRFS" >> debian/control
-  echo " System punktów przywracania BTRFS" >> debian/control
+depends='${shlibs:Depends}'
+if [ "$1" == "0" ]; then
+  wewn_a="Architecture: all"
+fi
+if [ "$1" == "32" ]; then
+  wewn_a="Architecture: i386"
+fi
+if [ "$1" == "64" ]; then
+  wewn_a="Architecture: amd64"
+fi
+cat - >debian/control <<KEYDATA
+Source: $APPS
+Section: tools
+Priority: extra
+Maintainer: Jacek Leszczyński <sam@bialan.pl>
+
+Package: $APPS
+$wewn_a
+Depends: ${depends}
+Description: System punktów przywracania BTRFS
+ System punktów przywracania BTRFS
+KEYDATA
 }
 
+
 prepare_changelog() {
-  echo "$APPS ($VER) experimental; urgency=low" > debian/changelog
-  echo "" >> debian/changelog
-  echo "  * Prepared by alien version 8.95" >> debian/changelog
-  echo "  " >> debian/changelog
-  echo "" >> debian/changelog
-  echo " -- Jacek Leszczyński <sam@bialan.pl>  $DATE" >> debian/changelog
+cat - >debian/changelog <<KEYDATA
+$APPS ($VER) experimental; urgency=low
+
+  * Prepared by alien version 8.95
+
+
+ -- Jacek Leszczyński <sam@bialan.pl>  $DATE
+KEYDATA
 }
 
 prepare_preinst() {
-  echo '#!/bin/sh' >debian/preinst
-  echo '' >>debian/preinst
-  echo 'set -e' >>debian/preinst
-  echo '' >>debian/preinst
-  echo 'exit 0' >>debian/preinst
-  echo '' >>debian/preinst
+cat - >debian/preinst <<KEYDATA
+#!/bin/sh' >debian/preinst
+
+set -e
+
+exit 0
+KEYDATA
 }
+
 
 prepare_postinst() {
-  echo '#!/bin/sh' >debian/postinst
-  echo '' >>debian/postinst
-  echo 'set -e' >>debian/postinst
-  echo '' >>debian/postinst
-  echo 'if [ "$1" = configure ]; then' >>debian/postinst
-  echo '' >>debian/postinst
-  echo '  AR=$(arch)' >>debian/postinst
-  echo '  if [ "$AR" = "x86_64" ]; then' >>debian/postinst
-  echo "    ln -s /usr/share/$APPS/$APPS.amd64 /usr/bin/$APPS" >>debian/postinst
-  echo "    ln -s /usr/share/$APPS/$APPS2.amd64 /usr/bin/$APPS2" >>debian/postinst
-  echo '  else' >>debian/postinst
-  echo "    ln -s /usr/share/$APPS/$APPS.i386 /usr/bin/$APPS" >>debian/postinst
-  echo "    ln -s /usr/share/$APPS/$APPS2.i386 /usr/bin/$APPS2" >>debian/postinst
-  echo '  fi' >>debian/postinst
-  echo '' >>debian/postinst
-  echo 'fi' >>debian/postinst
-  echo '' >>debian/postinst
-  echo 'if [ ! -e /etc/apt/sources.list.d/repozytorium_jacka_debian.list ]; then' >>debian/postinst
-  echo '  echo "deb https://packagecloud.io/repozytorium_jacka/debian/debian/ buster main" >/etc/apt/sources.list.d/repozytorium_jacka_debian.list' >>debian/postinst
-  echo '  echo "deb-src https://packagecloud.io/repozytorium_jacka/debian/debian/ buster main" >>/etc/apt/sources.list.d/repozytorium_jacka_debian.list' >>debian/postinst
-  echo 'fi' >>debian/postinst
-  echo '' >>debian/postinst
-  echo "groupadd -f --system $APPS" >>debian/postinst
-  echo "if [ -f /etc/sudoers.d/$APPS ]; then" >>debian/postinst
-  echo "  chown root:root /etc/sudoers.d/$APPS" >>debian/postinst
-  echo "  chmod 440 /etc/sudoers.d/$APPS" >>debian/postinst
-  echo "fi" >>debian/postinst
-  echo "" >>debian/postinst
-  echo "btrfs-tools-snapshots --postinst" >>debian/postinst
-  echo "" >>debian/postinst
-  POM='DPkg::Pre-Invoke {"btrfs-tools-snapshots --auto --trigger dpkg";};'
-  echo "echo '$POM' > /etc/apt/apt.conf.d/80btrfs-tools-snapshots" >>debian/postinst
-  echo "echo '#!/bin/sh' > /etc/cron.daily/btrfs-tools-snapshots" >>debian/postinst
-  echo "echo '' >> /etc/cron.daily/btrfs-tools-snapshots" >>debian/postinst
-  echo "echo 'btrfs-tools-snapshots --auto --trigger cron.daily' >> /etc/cron.daily/btrfs-tools-snapshots" >>debian/postinst
-  echo "echo '#!/bin/sh' > /etc/cron.weekly/btrfs-tools-snapshots" >>debian/postinst
-  echo "echo '' >> /etc/cron.weekly/btrfs-tools-snapshots" >>debian/postinst
-  echo "echo 'btrfs-tools-snapshots --auto --trigger cron.weekly' >> /etc/cron.weekly/btrfs-tools-snapshots" >>debian/postinst
-  echo "chmod +x /etc/cron.daily/btrfs-tools-snapshots" >>debian/postinst
-  echo "chmod +x /etc/cron.weekly/btrfs-tools-snapshots" >>debian/postinst
-  echo "" >>debian/postinst
-  echo 'exit 0' >>debian/postinst
-  echo '' >>debian/postinst
+echo "--------------------------- $DOLAR_ARCH"
+DOLAR_AR='$'.'AR'
+cat - >debian/postinst <<KEYDATA
+#!/bin/sh
+
+set -e
+
+if [ "$DOLAR_JEDEN" = configure ]; then
+
+  AR=$DOLAR_ARCH
+  if [ "${DOLAR}AR" = "x86_64" ]; then
+    ln -s /usr/share/$APPS/$APPS.amd64 /usr/bin/$APPS
+    ln -s /usr/share/$APPS/$APPS2.amd64 /usr/bin/$APPS2
+  else
+    ln -s /usr/share/$APPS/$APPS.i386 /usr/bin/$APPS
+    ln -s /usr/share/$APPS/$APPS2.i386 /usr/bin/$APPS2
+  fi
+
+fi
+
+if [ ! -e /etc/apt/sources.list.d/repozytorium_jacka_debian.list ]; then
+  echo "deb https://packagecloud.io/repozytorium_jacka/debian/debian/ buster main" >/etc/apt/sources.list.d/repozytorium_jacka_debian.list
+  echo "deb-src https://packagecloud.io/repozytorium_jacka/debian/debian/ buster main" >>/etc/apt/sources.list.d/repozytorium_jacka_debian.list
+fi
+
+groupadd -f --system $APPS
+if [ -f /etc/sudoers.d/$APPS ]; then
+  chown root:root /etc/sudoers.d/$APPS
+  chmod 440 /etc/sudoers.d/$APPS
+fi
+
+$KOMENDA_POSTINST
+
+echo 'DPkg::Pre-Invoke {"btrfs-tools-snapshots --auto --trigger dpkg";};' > /etc/apt/apt.conf.d/80btrfs-tools-snapshots
+echo '#!/bin/sh' > /etc/cron.daily/btrfs-tools-snapshots
+echo '' >> /etc/cron.daily/btrfs-tools-snapshots
+echo 'btrfs-tools-snapshots --auto --trigger cron.daily' >> /etc/cron.daily/btrfs-tools-snapshots
+echo '#!/bin/sh' > /etc/cron.weekly/btrfs-tools-snapshots
+echo '' >> /etc/cron.weekly/btrfs-tools-snapshots
+echo 'btrfs-tools-snapshots --auto --trigger cron.weekly' >> /etc/cron.weekly/btrfs-tools-snapshots
+chmod +x /etc/cron.daily/btrfs-tools-snapshots
+chmod +x /etc/cron.weekly/btrfs-tools-snapshots
+
+exit 0
+
+KEYDATA
 }
+
 
 prepare_prerm() {
-  echo '#!/bin/sh' > debian/prerm
-  echo 'set -e' >> debian/prerm
-  echo '# Automatically added by dh_installinit/11.2.1' >> debian/prerm
-  echo 'if [ -e /etc/cron.daily/btrfs-tools-snapshots ]; then' >>debian/prerm
-  echo '  rm -f /etc/cron.daily/btrfs-tools-snapshots' >>debian/prerm
-  echo 'fi' >>debian/prerm
-  echo 'if [ -e /etc/cron.weekly/btrfs-tools-snapshots ]; then' >>debian/prerm
-  echo '  rm -f /etc/cron.weekly/btrfs-tools-snapshots' >>debian/prerm
-  echo 'fi' >>debian/prerm
-  echo 'if [ -e /etc/apt/apt.conf.d/80btrfs-tools-snapshots ]; then' >>debian/prerm
-  echo '  rm -f /etc/apt/apt.conf.d/80btrfs-tools-snapshots' >>debian/prerm
-  echo 'fi' >>debian/prerm
-  echo '# End automatically added section' >> debian/prerm
+cat - >debian/prerm <<KEYDATA
+#!/bin/sh
+
+set -e
+
+# Automatically added by dh_installinit/11.2.1
+if [ -e /etc/cron.daily/btrfs-tools-snapshots ]; then
+  rm -f /etc/cron.daily/btrfs-tools-snapshots
+fi
+if [ -e /etc/cron.weekly/btrfs-tools-snapshots ]; then
+  rm -f /etc/cron.weekly/btrfs-tools-snapshots
+fi
+if [ -e /etc/apt/apt.conf.d/80btrfs-tools-snapshots ]; then
+  rm -f /etc/apt/apt.conf.d/80btrfs-tools-snapshots
+fi
+# End automatically added section
+KEYDATA
 }
 
+
 prepare_postrm() {
-  echo '#!/bin/sh' > debian/postrm
-  echo 'set -e' >> debian/postrm
-  echo '# Automatically added by dh_installinit/11.2.1' >> debian/postrm
-  echo "rm -f /usr/bin/$APPS" >> debian/postrm
-  echo "rm -f /usr/bin/$APPS2" >> debian/postrm
-  echo '# End automatically added section' >> debian/postrm
+cat - >debian/postrm <<KEYDATA
+#!/bin/sh
+
+set -e
+
+# Automatically added by dh_installinit/11.2.1
+rm -f /usr/bin/$APPS
+rm -f /usr/bin/$APPS2
+# End automatically added section
+KEYDATA
 }
+
 
 generuj_all_bit() {
   echo "Generuję pakiet DEB dla wszystkich architektur..."
@@ -158,6 +188,7 @@ generuj_all_bit() {
   fakeroot ./debian/rules binary
 }
 
+
 generuj_32bit() {
   echo "Generuję pakiet DEB dla wersji 32 bitowej..."
   czysc_katalog
@@ -171,6 +202,7 @@ generuj_32bit() {
   cp ../../$APPS2.i386 ./usr/bin/$APPS
   fakeroot ./debian/rules binary
 }
+
 
 generuj_64bit() {
   echo "Generuję pakiet DEB dla wersji 64 bitowej..."
@@ -186,7 +218,9 @@ generuj_64bit() {
   fakeroot ./debian/rules binary
 }
 
+
 cd $APPS
+czysc_katalog
 generuj_all_bit
 czysc_katalog
 cd ..
