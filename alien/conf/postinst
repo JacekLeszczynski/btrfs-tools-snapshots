@@ -1,0 +1,44 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = configure ]; then
+
+  AR=$(arch)
+  if [ "$AR" = "x86_64" ]; then
+    ln -s /usr/share/btrfs-tools-snapshots/btrfs-tools-snapshots.amd64 /usr/bin/btrfs-tools-snapshots
+    ln -s /usr/share/btrfs-tools-snapshots/btrfs-tools-snapshots-gui.amd64 /usr/bin/btrfs-tools-snapshots-gui
+  else
+    ln -s /usr/share/btrfs-tools-snapshots/btrfs-tools-snapshots.i386 /usr/bin/btrfs-tools-snapshots
+    ln -s /usr/share/btrfs-tools-snapshots/btrfs-tools-snapshots-gui.i386 /usr/bin/btrfs-tools-snapshots-gui
+  fi
+
+fi
+
+#Dodanie repozytorium do listy repozytoriów
+if [ ! -e /etc/apt/sources.list.d/repozytorium_jacka_debian.list ]; then
+  echo "deb https://packagecloud.io/repozytorium_jacka/debian/debian/ buster main" >/etc/apt/sources.list.d/repozytorium_jacka_debian.list
+  echo "deb-src https://packagecloud.io/repozytorium_jacka/debian/debian/ buster main" >>/etc/apt/sources.list.d/repozytorium_jacka_debian.list
+fi
+
+#Dodanie grupy systemowej
+groupadd -f --system btrfs-tools-snapshots
+if [ -f /etc/sudoers.d/btrfs-tools-snapshots ]; then
+  chown root:root /etc/sudoers.d/btrfs-tools-snapshots
+  chmod 440 /etc/sudoers.d/btrfs-tools-snapshots
+fi
+
+btrfs-tools-snapshots --postinst
+
+echo 'APT::Upgrade::Pre-Invoke {"btrfs-tools-snapshots --auto --trigger dpkg";};' > /etc/apt/apt.conf.d/80btrfs-tools-snapshots
+echo '#!/bin/sh' > /etc/cron.daily/btrfs-tools-snapshots
+echo '' >> /etc/cron.daily/btrfs-tools-snapshots
+echo 'btrfs-tools-snapshots --auto --trigger cron.daily' >> /etc/cron.daily/btrfs-tools-snapshots
+echo '#!/bin/sh' > /etc/cron.weekly/btrfs-tools-snapshots
+echo '' >> /etc/cron.weekly/btrfs-tools-snapshots
+echo 'btrfs-tools-snapshots --auto --trigger cron.weekly' >> /etc/cron.weekly/btrfs-tools-snapshots
+chmod +x /etc/cron.daily/btrfs-tools-snapshots
+chmod +x /etc/cron.weekly/btrfs-tools-snapshots
+
+exit 0
+
