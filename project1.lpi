@@ -28,7 +28,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);$(LazarusDir)/lcl/include"/>
-            <OtherUnitFiles Value="../../lib;../../components/extlazarus;$(LazarusDir)/components/lazutils;$(LazarusDir)/lcl;$(LazarusDir)/lcl/widgetset;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1/Ciphers;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1/Hashes"/>
+            <OtherUnitFiles Value="$(LazarusDir)/local/lib;$(LazarusDir)/local/components/extlazarus;$(LazarusDir)/components/lazutils;$(LazarusDir)/lcl;$(LazarusDir)/lcl/widgetset;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1/Ciphers;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1/Hashes"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -60,7 +60,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);$(LazarusDir)/lcl/include"/>
-            <OtherUnitFiles Value="../../lib;../../components/extlazarus;$(LazarusDir)/components/lazutils;$(LazarusDir)/lcl;$(LazarusDir)/lcl/widgetset;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1/Ciphers;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1/Hashes"/>
+            <OtherUnitFiles Value="$(LazarusDir)/local/lib;$(LazarusDir)/local/components/extlazarus;$(LazarusDir)/components/lazutils;$(LazarusDir)/lcl;$(LazarusDir)/lcl/widgetset;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1/Ciphers;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1/Hashes"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -92,7 +92,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);$(LazarusDir)/lcl/include"/>
-            <OtherUnitFiles Value="../../lib;../../components/extlazarus;$(LazarusDir)/components/lazutils;$(LazarusDir)/lcl;$(LazarusDir)/lcl/widgetset;$(LazarusDir)/lcl/interfaces/gtk2;$(LazarusDir)/lcl/units/x86_64-linux;$(LazarusDir)/lcl/units/x86_64-linux/gtk2;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1/Ciphers;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1/Hashes"/>
+            <OtherUnitFiles Value="$(LazarusDir)/local/lib;$(LazarusDir)/local/components/extlazarus;$(LazarusDir)/components/lazutils;$(LazarusDir)/lcl;$(LazarusDir)/lcl/forms;$(LazarusDir)/lcl/nonwin32;$(LazarusDir)/lcl/widgetset;$(LazarusDir)/lcl/interfaces/gtk2;$(LazarusDir)/lcl/units/x86_64-linux;$(LazarusDir)/lcl/units/x86_64-linux/gtk2;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1/Ciphers;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1/Hashes"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-GUI.debug"/>
           </SearchPaths>
           <Parsing>
@@ -134,7 +134,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);$(LazarusDir)/lcl/include"/>
-            <OtherUnitFiles Value="../../lib;../../components/extlazarus;$(LazarusDir)/components/lazutils;$(LazarusDir)/lcl;$(LazarusDir)/lcl/widgetset;$(LazarusDir)/lcl/interfaces/gtk2;$(LazarusDir)/lcl/units/i386-linux;$(LazarusDir)/lcl/units/i386-linux/gtk2;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1/Ciphers;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1/Hashes"/>
+            <OtherUnitFiles Value="$(LazarusDir)/local/lib;$(LazarusDir)/local/components/extlazarus;$(LazarusDir)/components/lazutils;$(LazarusDir)/lcl;$(LazarusDir)/lcl/forms;$(LazarusDir)/lcl/nonwin32;$(LazarusDir)/lcl/widgetset;$(LazarusDir)/lcl/interfaces/gtk2;$(LazarusDir)/lcl/units/i386-linux;$(LazarusDir)/lcl/units/i386-linux/gtk2;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1/Ciphers;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1/Hashes"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-GUI"/>
           </SearchPaths>
           <CodeGeneration>
@@ -168,7 +168,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);$(LazarusDir)/lcl/include"/>
-            <OtherUnitFiles Value="../../lib;../../components/extlazarus;$(LazarusDir)/components/lazutils;$(LazarusDir)/lcl;$(LazarusDir)/lcl/widgetset;$(LazarusDir)/lcl/interfaces/gtk2;$(LazarusDir)/lcl/units/x86_64-linux;$(LazarusDir)/lcl/units/x86_64-linux/gtk2;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1/Ciphers;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1/Hashes"/>
+            <OtherUnitFiles Value="$(LazarusDir)/local/lib;$(LazarusDir)/local/components/extlazarus;$(LazarusDir)/components/lazutils;$(LazarusDir)/lcl;$(LazarusDir)/lcl/forms;$(LazarusDir)/lcl/nonwin32;$(LazarusDir)/lcl/widgetset;$(LazarusDir)/lcl/interfaces/gtk2;$(LazarusDir)/lcl/units/x86_64-linux;$(LazarusDir)/lcl/units/x86_64-linux/gtk2;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1/Ciphers;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1/Hashes"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-GUI"/>
           </SearchPaths>
           <CodeGeneration>
@@ -221,7 +221,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir);$(LazarusDir)/lcl/include"/>
-      <OtherUnitFiles Value="../../lib;../../components/extlazarus;$(LazarusDir)/components/lazutils;$(LazarusDir)/lcl;$(LazarusDir)/lcl/widgetset;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1/Ciphers;../../../.lazarus/onlinepackagemanager/packages/dcpcrypt-2.0.4.1/Hashes"/>
+      <OtherUnitFiles Value="$(LazarusDir)/local/lib;$(LazarusDir)/local/components/extlazarus;$(LazarusDir)/components/lazutils;$(LazarusDir)/lcl;$(LazarusDir)/lcl/widgetset;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1/Ciphers;$(LazarusDir)/local/packages/dcpcrypt-2.0.4.1/Hashes"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS).debug"/>
     </SearchPaths>
     <Parsing>
