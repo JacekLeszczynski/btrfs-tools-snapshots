@@ -1,0 +1,140 @@
+object FConf: TFConf
+  Left = 737
+  Height = 207
+  Top = 224
+  Width = 728
+  BorderStyle = bsDialog
+  Caption = 'Opcje'
+  ClientHeight = 207
+  ClientWidth = 728
+  DesignTimePPI = 94
+  OnClose = FormClose
+  OnShow = FormShow
+  Position = poOwnerFormCenter
+  LCLVersion = '1.9.0.0'
+  object updategrub: TCheckBox
+    AnchorSideLeft.Control = aktywne
+    AnchorSideTop.Control = aktywne
+    AnchorSideTop.Side = asrBottom
+    Left = 8
+    Height = 22
+    Top = 56
+    Width = 653
+    Caption = 'Podczas zmian woluminu root automatycznie aktualizuj pliki startowe (odpowiedzialne za menu startowe)'
+    OnChange = updategrubChange
+    TabOrder = 1
+  end
+  object aktywne: TCheckBox
+    AnchorSideLeft.Control = Label3
+    AnchorSideTop.Control = Label3
+    AnchorSideTop.Side = asrBottom
+    Left = 8
+    Height = 22
+    Top = 34
+    Width = 293
+    BorderSpacing.Top = 8
+    Caption = 'Aktywacja wyzwalaczy generowania migawek'
+    Color = clDefault
+    Font.Color = clRed
+    OnChange = aktywneChange
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 0
+  end
+  object Label1: TLabel
+    AnchorSideLeft.Control = updategrub
+    AnchorSideTop.Control = updategrub
+    AnchorSideTop.Side = asrBottom
+    Left = 8
+    Height = 18
+    Top = 82
+    Width = 116
+    BorderSpacing.Top = 4
+    Caption = 'Rodzaj wyzwalacza:'
+    ParentColor = False
+  end
+  object wyzwalacz: TComboBox
+    AnchorSideLeft.Control = Label1
+    AnchorSideTop.Control = Label1
+    AnchorSideTop.Side = asrBottom
+    Left = 8
+    Height = 26
+    Top = 100
+    Width = 712
+    ItemHeight = 0
+    ItemIndex = 0
+    Items.Strings = (
+      'DPKG - generuj migawki automatycznie przed każdą aktualizacją systemu (nie zawsze działa)'
+      'CRON.DAILY - generuj migawki automatycznie każdego dnia'
+      'CRON.WEEKLY - generuj migawki automatycznie raz w tygodniu'
+    )
+    OnChange = wyzwalaczChange
+    Style = csDropDownList
+    TabOrder = 2
+    Text = 'DPKG - generuj migawki automatycznie przed każdą aktualizacją systemu (nie zawsze działa)'
+  end
+  object Label2: TLabel
+    AnchorSideLeft.Control = wyzwalacz
+    AnchorSideTop.Control = wyzwalacz
+    AnchorSideTop.Side = asrBottom
+    Left = 8
+    Height = 18
+    Top = 130
+    Width = 247
+    BorderSpacing.Top = 4
+    Caption = 'Maksymalna ilość pamiętanych migawek:'
+    ParentColor = False
+  end
+  object maxmigawek: TSpinEdit
+    AnchorSideLeft.Control = Label2
+    AnchorSideTop.Control = Label2
+    AnchorSideTop.Side = asrBottom
+    Left = 8
+    Height = 26
+    Top = 148
+    Width = 280
+    MaxValue = 10
+    MinValue = 2
+    OnChange = maxmigawekChange
+    TabOrder = 3
+    Value = 2
+  end
+  object BitBtn1: TBitBtn
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 643
+    Height = 31
+    Top = 168
+    Width = 77
+    Anchors = [akRight, akBottom]
+    BorderSpacing.Right = 8
+    BorderSpacing.Bottom = 8
+    Caption = 'OK'
+    OnClick = BitBtn1Click
+    TabOrder = 4
+  end
+  object Label3: TLabel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = Owner
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 8
+    Height = 18
+    Top = 8
+    Width = 712
+    Alignment = taCenter
+    Anchors = [akTop, akLeft, akRight]
+    AutoSize = False
+    BorderSpacing.Left = 8
+    BorderSpacing.Top = 8
+    BorderSpacing.Right = 8
+    Caption = 'Ostrzeżenie: Poniższe ustwienia zmieniaj tylko wtedy - jeśli wiesz co robisz!'
+    Color = clRed
+    Font.Style = [fsItalic]
+    ParentColor = False
+    ParentFont = False
+    Transparent = False
+  end
+end

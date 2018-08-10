@@ -1,13 +1,14 @@
 object FMain: TFMain
-  Left = 384
-  Height = 516
-  Top = 186
+  Left = 289
+  Height = 540
+  Top = 153
   Width = 826
   BorderStyle = bsSingle
   Caption = 'Btrfs Tools'
-  ClientHeight = 516
+  ClientHeight = 512
   ClientWidth = 826
   DesignTimePPI = 94
+  Menu = MainMenu1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   Position = poScreenCenter
@@ -80,5 +81,13 @@ object FMain: TFMain
     StringToCR = '^'
     left = 96
     top = 56
+  end
+  object MainMenu1: TMainMenu
+    left = 312
+    top = 176
+    object MenuKonfiguracja: TMenuItem
+      Caption = 'Konfiguracja'
+      OnClick = MenuKonfiguracjaClick
+    end
   end
 end

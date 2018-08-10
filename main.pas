@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons, ExtMessage;
+  Buttons, Menus, ExtMessage;
 
 type
 
@@ -18,6 +18,8 @@ type
     BitBtn3: TBitBtn;
     BitBtn4: TBitBtn;
     BitBtn6: TBitBtn;
+    MainMenu1: TMainMenu;
+    MenuKonfiguracja: TMenuItem;
     mess: TExtMessage;
     lMount: TListBox;
     procedure BitBtn1Click(Sender: TObject);
@@ -28,6 +30,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure lMountClick(Sender: TObject);
+    procedure MenuKonfiguracjaClick(Sender: TObject);
   private
     lMountSciezki: TStringList;
     procedure init;
@@ -44,7 +47,7 @@ var
 implementation
 
 uses
-  config, BaseUnix, Unix;
+  config, BaseUnix, Unix, conf;
 
 {$R *.lfm}
 
@@ -129,6 +132,12 @@ end;
 procedure TFMain.lMountClick(Sender: TObject);
 begin
   refresh_przyciski;
+end;
+
+procedure TFMain.MenuKonfiguracjaClick(Sender: TObject);
+begin
+  FConf:=TFConf.Create(self);
+  FConf.ShowModal;
 end;
 
 procedure TFMain.init;

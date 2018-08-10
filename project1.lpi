@@ -14,7 +14,7 @@
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="8"/>
       <RevisionNr Value="6"/>
-      <BuildNr Value="1"/>
+      <BuildNr Value="2"/>
       <Attributes pvaPreRelease="True"/>
       <StringTable InternalName="btrfs-tools-snapshots" LegalCopyright="GPL (ver. 3)" OriginalFilename="btrfs-tools-snapshots" ProductName="BTRFS Tools Snapshots" ProductVersion="0.8.3"/>
     </VersionInfo>
@@ -47,7 +47,7 @@
           </Linking>
           <Other>
             <OtherDefines Count="1">
-              <Define0 Value="-dGUI"/>
+              <Define0 Value="GUI"/>
             </OtherDefines>
           </Other>
         </CompilerOptions>
@@ -203,7 +203,7 @@
       <FormatVersion Value="2"/>
       <Modes Count="0"/>
     </RunParams>
-    <Units Count="2">
+    <Units Count="3">
       <Unit0>
         <Filename Value="project1.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -212,6 +212,12 @@
         <Filename Value="config.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit1>
+      <Unit2>
+        <Filename Value="conf.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FConf"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit2>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

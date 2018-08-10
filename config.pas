@@ -771,7 +771,7 @@ begin
   (* ROOT *)
   if dm.params.IsParam('root') then _ROOT:=dm.params.GetValue('root') else _ROOT:=dm.ini.ReadString('volume_root','@');
   _UPDATE_GRUB:=dm.ini.ReadBool('update-grub',false);
-  _MAX_COUNT_SNAPSHOTS:=dm.ini.ReadInteger('snapshots_max',0);
+  _MAX_COUNT_SNAPSHOTS:=dm.ini.ReadInteger('snapshots_max',2);
   _AUTO_RUN:=dm.ini.ReadBool('auto-run',false);
   _GUI_ONLYROOT:=dm.ini.ReadBool('gui-onlyroot',true);
 end;
@@ -1596,7 +1596,7 @@ end;
 procedure Tdm.autoprogram(trigger: string);
 begin
   if not _AUTO_RUN then exit;
-  if trigger<>'' then if ini.ReadString('trigger','cron.weekly')<>trigger then
+  if trigger<>'' then if ini.ReadString('trigger','dpkg')<>trigger then
   begin
     if _TEST then writeln('Konfiguracja nie pozwala na wykonanie tego uaktualnienia, wychodzę.');
     exit;
