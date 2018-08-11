@@ -1,88 +1,40 @@
 object FConf: TFConf
   Left = 737
-  Height = 207
+  Height = 540
   Top = 224
-  Width = 728
+  Width = 587
   BorderStyle = bsDialog
   Caption = 'Opcje'
-  ClientHeight = 207
-  ClientWidth = 728
+  ClientHeight = 540
+  ClientWidth = 587
   DesignTimePPI = 94
   OnClose = FormClose
   OnShow = FormShow
   Position = poOwnerFormCenter
   LCLVersion = '1.9.0.0'
   object updategrub: TCheckBox
-    AnchorSideLeft.Control = aktywne
-    AnchorSideTop.Control = aktywne
+    AnchorSideLeft.Control = GroupBox1
+    AnchorSideTop.Control = GroupBox1
     AnchorSideTop.Side = asrBottom
     Left = 8
     Height = 22
-    Top = 56
-    Width = 653
-    Caption = 'Podczas zmian woluminu root automatycznie aktualizuj pliki startowe (odpowiedzialne za menu startowe)'
+    Top = 278
+    Width = 292
+    BorderSpacing.Top = 12
+    Caption = 'Automatyczna aktualizacja menu startowego'
     OnChange = updategrubChange
-    TabOrder = 1
-  end
-  object aktywne: TCheckBox
-    AnchorSideLeft.Control = Label3
-    AnchorSideTop.Control = Label3
-    AnchorSideTop.Side = asrBottom
-    Left = 8
-    Height = 22
-    Top = 34
-    Width = 293
-    BorderSpacing.Top = 8
-    Caption = 'Aktywacja wyzwalaczy generowania migawek'
-    Color = clDefault
-    Font.Color = clRed
-    OnChange = aktywneChange
-    ParentColor = False
-    ParentFont = False
     TabOrder = 0
   end
-  object Label1: TLabel
+  object Label2: TLabel
     AnchorSideLeft.Control = updategrub
-    AnchorSideTop.Control = updategrub
-    AnchorSideTop.Side = asrBottom
-    Left = 8
-    Height = 18
-    Top = 82
-    Width = 116
-    BorderSpacing.Top = 4
-    Caption = 'Rodzaj wyzwalacza:'
-    ParentColor = False
-  end
-  object wyzwalacz: TComboBox
-    AnchorSideLeft.Control = Label1
     AnchorSideTop.Control = Label1
     AnchorSideTop.Side = asrBottom
     Left = 8
-    Height = 26
-    Top = 100
-    Width = 712
-    ItemHeight = 0
-    ItemIndex = 0
-    Items.Strings = (
-      'DPKG - generuj migawki automatycznie przed każdą aktualizacją systemu (nie zawsze działa)'
-      'CRON.DAILY - generuj migawki automatycznie każdego dnia'
-      'CRON.WEEKLY - generuj migawki automatycznie raz w tygodniu'
-    )
-    OnChange = wyzwalaczChange
-    Style = csDropDownList
-    TabOrder = 2
-    Text = 'DPKG - generuj migawki automatycznie przed każdą aktualizacją systemu (nie zawsze działa)'
-  end
-  object Label2: TLabel
-    AnchorSideLeft.Control = wyzwalacz
-    AnchorSideTop.Control = wyzwalacz
-    AnchorSideTop.Side = asrBottom
-    Left = 8
     Height = 18
-    Top = 130
-    Width = 247
-    BorderSpacing.Top = 4
-    Caption = 'Maksymalna ilość pamiętanych migawek:'
+    Top = 392
+    Width = 223
+    BorderSpacing.Top = 12
+    Caption = 'Maksymalna ilość migawek na dysku:'
     ParentColor = False
   end
   object maxmigawek: TSpinEdit
@@ -91,12 +43,12 @@ object FConf: TFConf
     AnchorSideTop.Side = asrBottom
     Left = 8
     Height = 26
-    Top = 148
+    Top = 410
     Width = 280
     MaxValue = 10
     MinValue = 2
     OnChange = maxmigawekChange
-    TabOrder = 3
+    TabOrder = 1
     Value = 2
   end
   object BitBtn1: TBitBtn
@@ -104,16 +56,16 @@ object FConf: TFConf
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 643
+    Left = 502
     Height = 31
-    Top = 168
+    Top = 501
     Width = 77
     Anchors = [akRight, akBottom]
     BorderSpacing.Right = 8
     BorderSpacing.Bottom = 8
     Caption = 'OK'
     OnClick = BitBtn1Click
-    TabOrder = 4
+    TabOrder = 2
   end
   object Label3: TLabel
     AnchorSideLeft.Control = Owner
@@ -123,7 +75,7 @@ object FConf: TFConf
     Left = 8
     Height = 18
     Top = 8
-    Width = 712
+    Width = 571
     Alignment = taCenter
     Anchors = [akTop, akLeft, akRight]
     AutoSize = False
@@ -136,5 +88,140 @@ object FConf: TFConf
     ParentColor = False
     ParentFont = False
     Transparent = False
+  end
+  object GroupBox1: TGroupBox
+    AnchorSideLeft.Control = Label3
+    AnchorSideTop.Control = Label3
+    AnchorSideTop.Side = asrBottom
+    Left = 8
+    Height = 232
+    Top = 34
+    Width = 568
+    BorderSpacing.Top = 8
+    Caption = 'Auto-wyzwalacz:'
+    ClientHeight = 212
+    ClientWidth = 564
+    TabOrder = 3
+    object RadioButton1: TRadioButton
+      Left = 8
+      Height = 22
+      Top = 8
+      Width = 87
+      Caption = 'Wyłączony'
+      Checked = True
+      OnChange = _AUTOWYZWALACZ
+      TabOrder = 0
+    end
+    object RadioButton2: TRadioButton
+      Left = 8
+      Height = 22
+      Top = 56
+      Width = 59
+      Caption = 'DPKG'
+      OnChange = _AUTOWYZWALACZ
+      TabOrder = 1
+    end
+    object Label4: TLabel
+      Left = 56
+      Height = 18
+      Top = 32
+      Width = 202
+      Caption = ' Migawki automatyczne wyłączone. '
+      Font.Color = clMaroon
+      Font.Style = [fsItalic]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label5: TLabel
+      Left = 56
+      Height = 18
+      Top = 80
+      Width = 398
+      Caption = ' Migawki wyzwalane automatycznie podczas aktualizowania systemu. '
+      Font.Color = clMaroon
+      Font.Style = [fsItalic]
+      ParentColor = False
+      ParentFont = False
+    end
+    object RadioButton3: TRadioButton
+      Left = 8
+      Height = 22
+      Top = 104
+      Width = 86
+      Caption = 'Cron.Daily'
+      OnChange = _AUTOWYZWALACZ
+      TabOrder = 2
+    end
+    object Label6: TLabel
+      Left = 56
+      Height = 18
+      Top = 128
+      Width = 336
+      Caption = ' Migawki wyzwalane automatycznie z Crona każdego dnia. '
+      Font.Color = clMaroon
+      Font.Style = [fsItalic]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label7: TLabel
+      Left = 56
+      Height = 18
+      Top = 184
+      Width = 339
+      Caption = ' Migawki wyzwalane automatycznie z Crona raz na tydzień. '
+      Font.Color = clMaroon
+      Font.Style = [fsItalic]
+      ParentColor = False
+      ParentFont = False
+    end
+    object RadioButton4: TRadioButton
+      Left = 8
+      Height = 22
+      Top = 160
+      Width = 98
+      Caption = 'Cron.Weekly'
+      OnChange = _AUTOWYZWALACZ
+      TabOrder = 3
+    end
+  end
+  object Label1: TLabel
+    AnchorSideLeft.Control = updategrub
+    AnchorSideTop.Control = updategrub
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = GroupBox1
+    AnchorSideRight.Side = asrBottom
+    Left = 45
+    Height = 72
+    Top = 308
+    Width = 531
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Left = 37
+    BorderSpacing.Top = 8
+    Caption = ' Jeśli włączone podczas wszelkich zmian dot. woluminu startowego ROOT będą generowane automatyczne aktualizacje plików startowych komputera, dzięki czemu będzie możliwe uruchomienie komputera z pożądanej migawki w razie potrzeby.'#10'Gdy wyłączone, aktualizacja nie będzie wykonywana automatycznie.'
+    Font.Color = clMaroon
+    Font.Style = [fsItalic]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object Label8: TLabel
+    AnchorSideLeft.Control = updategrub
+    AnchorSideTop.Control = maxmigawek
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = GroupBox1
+    AnchorSideRight.Side = asrBottom
+    Left = 45
+    Height = 54
+    Top = 444
+    Width = 531
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Left = 37
+    BorderSpacing.Top = 8
+    Caption = 'Określa maksymalną ilość utrzymywanych na dysku migawek, gdy liczba ta zostanie przekroczona - najstarsze migawki będą usuwane.'#10'Wartość "0" wyłącza ten mechanizm i migawki nie będą usuwane.'
+    Font.Color = clMaroon
+    Font.Style = [fsItalic]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
   end
 end

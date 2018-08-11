@@ -11,6 +11,7 @@ object FMain: TFMain
   Menu = MainMenu1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   Position = poScreenCenter
   LCLVersion = '1.9.0.0'
   object lMount: TListBox
@@ -52,18 +53,6 @@ object FMain: TFMain
     TabOrder = 3
     Visible = False
   end
-  object BitBtn4: TBitBtn
-    Left = 648
-    Height = 80
-    Top = 72
-    Width = 169
-    Caption = 'Przywróć do migawki'
-    Enabled = False
-    Font.Color = clRed
-    OnClick = BitBtn4Click
-    ParentFont = False
-    TabOrder = 4
-  end
   object BitBtn6: TBitBtn
     Left = 648
     Height = 29
@@ -72,6 +61,18 @@ object FMain: TFMain
     Caption = 'Wyjście'
     OnClick = BitBtn6Click
     TabOrder = 5
+  end
+  object BitBtn4: TBitBtn
+    Left = 648
+    Height = 80
+    Top = 72
+    Width = 169
+    Caption = 'Przywróć do migawki'
+    Font.Color = clRed
+    OnClick = BitBtn4Click
+    ParentFont = False
+    TabOrder = 4
+    TabStop = False
   end
   object mess: TExtMessage
     Caption = '<Auto>'

@@ -29,6 +29,7 @@ type
     procedure BitBtn6Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure lMountClick(Sender: TObject);
     procedure MenuKonfiguracjaClick(Sender: TObject);
   private
@@ -55,15 +56,9 @@ uses
 
 procedure TFMain.FormCreate(Sender: TObject);
 begin
+  Caption:='Btrfs Tools Snapshots Gui ('+dm.wersja+')';
   lMountSciezki:=TStringList.Create;
-  Init;
-  BitBtn4.Enabled:=not (_SWIAT=_ROOT);
   BitBtn4.Caption:='Przywróć do migawki'+#10+'z której uruchomiony'+#10+'jest system aktualnie';
-  if _SWIAT<>_ROOT then
-  begin
-    BitBtn1.Enabled:=false;
-    BitBtn2.Enabled:=false;
-  end;
 end;
 
 procedure TFMain.BitBtn1Click(Sender: TObject);
@@ -72,6 +67,7 @@ var
   id: integer;
   nazwa,migawka: string;
 begin
+  if _ROOT<>_SWIAT then exit;
   s:=lMount.Items[lMount.ItemIndex];
   s:=StringReplace(s,'   \> ','',[]);
   id:=StrToInt(GetLineToStr(s,2,' '));
@@ -95,6 +91,7 @@ var
   id: integer;
   nazwa: string;
 begin
+  if _ROOT<>_SWIAT then exit;
   s:=lMount.Items[lMount.ItemIndex];
   s:=StringReplace(s,'   \> ','',[]);
   id:=StrToInt(GetLineToStr(s,2,' '));
@@ -111,6 +108,7 @@ end;
 
 procedure TFMain.BitBtn4Click(Sender: TObject);
 begin
+  if _ROOT=_SWIAT then exit;
   showmessage('Zostanie przywrócona migawka, stary wolumin zostanie usunięty i wszystkie pozostałe migawki zostaną usunięte. Tej operacji nie da się cofnąć! Stracisz wszystkie informacje przechowywane na usuwanych woluminach. Zostaniesz zapytany czy kontynuować i wykonać tą operację. W razie kontynuacji operacja zostanie wykonana i komputer automatycznie zrestartowany...');
   if mess.ShowConfirmationYesNo('Kontynuować ?') then
   begin
@@ -127,6 +125,17 @@ end;
 procedure TFMain.FormDestroy(Sender: TObject);
 begin
   lMountSciezki.Free;
+end;
+
+procedure TFMain.FormShow(Sender: TObject);
+begin
+  Init;
+  if _SWIAT<>_ROOT then
+  begin
+    BitBtn1.Enabled:=false;
+    BitBtn2.Enabled:=false;
+    BitBtn4.Enabled:=true;
+  end else BitBtn4.Enabled:=false;
 end;
 
 procedure TFMain.lMountClick(Sender: TObject);
@@ -162,10 +171,17 @@ var
 begin
   if _SWIAT=_ROOT then
   begin
-    s:=lMount.Items[lMount.ItemIndex];
-    migawka:=pos('   \> ',s)>0;
-    BitBtn1.Enabled:=not migawka;
-    BitBtn2.Enabled:=migawka;
+    if lMount.ItemIndex=-1 then
+    begin
+      BitBtn1.Enabled:=false;
+      BitBtn2.Enabled:=false;
+    end else begin
+      s:=lMount.Items[lMount.ItemIndex];
+      migawka:=pos('   \> ',s)>0;
+      BitBtn1.Enabled:=not migawka;
+      BitBtn2.Enabled:=migawka;
+    end;
+    BitBtn4.Enabled:=false;
   end;
 end;
 

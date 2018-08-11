@@ -14,7 +14,7 @@
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="8"/>
       <RevisionNr Value="6"/>
-      <BuildNr Value="2"/>
+      <BuildNr Value="3"/>
       <Attributes pvaPreRelease="True"/>
       <StringTable InternalName="btrfs-tools-snapshots" LegalCopyright="GPL (ver. 3)" OriginalFilename="btrfs-tools-snapshots" ProductName="BTRFS Tools Snapshots" ProductVersion="0.8.3"/>
     </VersionInfo>
@@ -216,6 +216,7 @@
         <Filename Value="conf.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FConf"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit2>
     </Units>
