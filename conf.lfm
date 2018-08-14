@@ -1,12 +1,12 @@
 object FConf: TFConf
   Left = 737
-  Height = 614
+  Height = 602
   Top = 224
-  Width = 605
+  Width = 665
   BorderStyle = bsDialog
   Caption = 'Opcje'
-  ClientHeight = 614
-  ClientWidth = 605
+  ClientHeight = 602
+  ClientWidth = 665
   DesignTimePPI = 94
   OnClose = FormClose
   OnShow = FormShow
@@ -55,9 +55,9 @@ object FConf: TFConf
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 520
+    Left = 580
     Height = 31
-    Top = 575
+    Top = 563
     Width = 77
     Anchors = [akRight, akBottom]
     BorderSpacing.Right = 8
@@ -74,7 +74,7 @@ object FConf: TFConf
     Left = 8
     Height = 18
     Top = 8
-    Width = 589
+    Width = 649
     Alignment = taCenter
     Anchors = [akTop, akLeft, akRight]
     AutoSize = False
@@ -92,14 +92,17 @@ object FConf: TFConf
     AnchorSideLeft.Control = Label3
     AnchorSideTop.Control = Label3
     AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Label3
+    AnchorSideRight.Side = asrBottom
     Left = 8
     Height = 232
     Top = 34
-    Width = 589
+    Width = 649
+    Anchors = [akTop, akLeft, akRight]
     BorderSpacing.Top = 8
     Caption = 'Auto-wyzwalacz:'
     ClientHeight = 212
-    ClientWidth = 585
+    ClientWidth = 645
     TabOrder = 3
     object RadioButton1: TRadioButton
       Left = 8
@@ -193,7 +196,7 @@ object FConf: TFConf
     Left = 45
     Height = 72
     Top = 308
-    Width = 552
+    Width = 612
     Anchors = [akTop, akLeft, akRight]
     BorderSpacing.Left = 37
     BorderSpacing.Top = 8
@@ -213,7 +216,7 @@ object FConf: TFConf
     Left = 45
     Height = 54
     Top = 444
-    Width = 552
+    Width = 612
     Anchors = [akTop, akLeft, akRight]
     BorderSpacing.Left = 37
     BorderSpacing.Top = 8
@@ -246,7 +249,7 @@ object FConf: TFConf
     Left = 45
     Height = 18
     Top = 540
-    Width = 552
+    Width = 612
     Anchors = [akTop, akLeft, akRight]
     BorderSpacing.Left = 37
     BorderSpacing.Top = 8
