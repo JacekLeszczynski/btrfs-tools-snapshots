@@ -91,7 +91,7 @@ type
 
 const
   _DEBUG = false;
-  _CONF_VER = 3;
+  _CONF_VER = 4;
   _CONF = '/etc/default/btrfs-tools-snapshots';
   _CONF_OLD = '/etc/default/btrfs-tools-snapshots.dpkg-old';
 
