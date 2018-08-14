@@ -91,7 +91,7 @@ type
 
 const
   _DEBUG = false;
-  _CONF_VER = 2;
+  _CONF_VER = 3;
   _CONF = '/etc/default/btrfs-tools-snapshots';
   _CONF_OLD = '/etc/default/btrfs-tools-snapshots.dpkg-old';
 
@@ -106,6 +106,7 @@ var
   _MAX_COUNT_SNAPSHOTS: integer = 0;
   _AUTO_RUN: boolean = false;
   _GUI_ONLYROOT: boolean = true;
+  _BACK_ROOT_GEN_SNAPSHOT: boolean = false;
   dm: Tdm;
   TextSeparator: char;
 
@@ -211,6 +212,11 @@ begin
     t.Add('#Domyślnie opcja włączona, w celu pokazywania wszystkich bez ograniczeń, wyłącz tą opcję.');
     t.Add('#Dozwolone wartości to: yes|no');
     t.Add('gui-onlyroot=yes');
+    t.Add('');
+    t.Add('#Podczas cofania się do migawki twórz nową migawkę.');
+    t.Add('#Domyślnie opcja jest wyłączona.');
+    t.Add('#Dozwolone wartości to: yes|no');
+    t.Add('back-root-gen-snapshot=no');
     if inny_plik='' then
     begin
       tab.Assign(t);
@@ -774,6 +780,7 @@ begin
   _MAX_COUNT_SNAPSHOTS:=dm.ini.ReadInteger('snapshots_max',2);
   _AUTO_RUN:=dm.ini.ReadBool('auto-run',false);
   _GUI_ONLYROOT:=dm.ini.ReadBool('gui-onlyroot',true);
+  _BACK_ROOT_GEN_SNAPSHOT:=dm.ini.ReadBool('back-root-gen-snapshot',false);
 end;
 
 function Tdm.wersja: string;
@@ -1440,7 +1447,7 @@ begin
           s:=StringReplace(s,'   \> ','',[]);
           nazwa:=GetLineToStr(s,9,' ');
           dzien:=GetLineToStr(nazwa,2,'_');
-          ss.Add(StringReplace(StringReplace(wzor,'@',nazwa,[rfReplaceAll]),'$MIGAWKA$','Migawka z dnia: '+dzien,[]));
+          ss.Add(StringReplace(StringReplace(wzor,'subvol=@','subvol='+nazwa,[rfReplaceAll]),'$MIGAWKA$','Migawka z dnia: '+dzien,[]));
         end;
       end;
     end;
@@ -1550,7 +1557,7 @@ begin
     inc(i);
   end;
   (* stworzenie nowej migawki do nowego wolumenu głównego *)
-  //nowa_migawka;
+  if _BACK_ROOT_GEN_SNAPSHOT then nowa_migawka(_ROOT,'@'+_ROOT+'_'+FormatDateTime('yyyy-mm-dd',date));
   (* odtworzenie informacji startowych i wykonanie update-grub *)
   generuj_btrfs_grub_migawki;
   (* czyszczenie i odmontowanie zasobu *)

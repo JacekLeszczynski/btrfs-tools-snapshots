@@ -14,6 +14,8 @@ type
 
   TFConf = class(TForm)
     BitBtn1: TBitBtn;
+    Label9: TLabel;
+    newrootsnapshot: TCheckBox;
     GroupBox1: TGroupBox;
     Label1: TLabel;
     Label3: TLabel;
@@ -33,6 +35,7 @@ type
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormShow(Sender: TObject);
     procedure maxmigawekChange(Sender: TObject);
+    procedure newrootsnapshotChange(Sender: TObject);
     procedure updategrubChange(Sender: TObject);
     procedure _AUTOWYZWALACZ(Sender: TObject);
   private
@@ -72,6 +75,12 @@ procedure TFConf.maxmigawekChange(Sender: TObject);
 begin
   _MAX_COUNT_SNAPSHOTS:=maxmigawek.Value;
   dm.ini.WriteInteger('snapshots_max',_MAX_COUNT_SNAPSHOTS);
+end;
+
+procedure TFConf.newrootsnapshotChange(Sender: TObject);
+begin
+  _BACK_ROOT_GEN_SNAPSHOT:=newrootsnapshot.Checked;
+  dm.ini.WriteBool('back-root-gen-snapshot',_BACK_ROOT_GEN_SNAPSHOT);
 end;
 
 procedure TFConf.updategrubChange(Sender: TObject);
@@ -115,6 +124,7 @@ begin
   end else RadioButton1.Checked:=true;
   updategrub.Checked:=_UPDATE_GRUB;
   maxmigawek.Value:=_MAX_COUNT_SNAPSHOTS;
+  newrootsnapshot.Checked:=_BACK_ROOT_GEN_SNAPSHOT;
 end;
 
 end.

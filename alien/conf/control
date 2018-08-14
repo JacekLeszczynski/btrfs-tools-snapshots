@@ -1,10 +1,11 @@
 Source: btrfs-tools-snapshots
-Section: tools
-Priority: extra
+Section: utils
+Priority: optional
 Maintainer: Jacek Leszczyński <sam@bialan.pl>
 
 Package: btrfs-tools-snapshots
 Architecture: {ARCH}
 Depends: ${shlibs:Depends}
+Homepage: https://github.com/JacekLeszczynski/btrfs-tools-snapshots
 Description: System punktów przywracania BTRFS
  System punktów przywracania BTRFS

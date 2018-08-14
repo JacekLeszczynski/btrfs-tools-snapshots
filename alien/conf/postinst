@@ -6,11 +6,16 @@ if [ "$1" = configure ]; then
 
   AR=$(arch)
   if [ "$AR" = "x86_64" ]; then
-    ln -s /usr/share/btrfs-tools-snapshots/btrfs-tools-snapshots.amd64 /usr/bin/btrfs-tools-snapshots
-    ln -s /usr/share/btrfs-tools-snapshots/btrfs-tools-snapshots-gui.amd64 /usr/bin/btrfs-tools-snapshots-gui
+    POM="amd64"
   else
-    ln -s /usr/share/btrfs-tools-snapshots/btrfs-tools-snapshots.i386 /usr/bin/btrfs-tools-snapshots
-    ln -s /usr/share/btrfs-tools-snapshots/btrfs-tools-snapshots-gui.i386 /usr/bin/btrfs-tools-snapshots-gui
+    POM="i386"
+  fi
+
+  if [ ! -e /usr/bin/btrfs-tools-snapshots ]; then
+    ln -s /usr/share/btrfs-tools-snapshots/btrfs-tools-snapshots.$POM /usr/bin/btrfs-tools-snapshots
+  fi
+  if [ ! -e /usr/bin/btrfs-tools-snapshots-gui ]; then
+    ln -s /usr/share/btrfs-tools-snapshots/btrfs-tools-snapshots-gui.$POM /usr/bin/btrfs-tools-snapshots-gui
   fi
 
 fi
@@ -30,13 +35,16 @@ fi
 
 btrfs-tools-snapshots --postinst
 
-echo 'APT::Upgrade::Pre-Invoke {"btrfs-tools-snapshots --auto --trigger dpkg";};' > /etc/apt/apt.conf.d/80btrfs-tools-snapshots
+echo 'DPkg::Pre-Invoke {"btrfs-tools-snapshots --auto --trigger dpkg";};' > /etc/apt/apt.conf.d/80btrfs-tools-snapshots
+
 echo '#!/bin/sh' > /etc/cron.daily/btrfs-tools-snapshots
 echo '' >> /etc/cron.daily/btrfs-tools-snapshots
 echo 'btrfs-tools-snapshots --auto --trigger cron.daily' >> /etc/cron.daily/btrfs-tools-snapshots
+
 echo '#!/bin/sh' > /etc/cron.weekly/btrfs-tools-snapshots
 echo '' >> /etc/cron.weekly/btrfs-tools-snapshots
 echo 'btrfs-tools-snapshots --auto --trigger cron.weekly' >> /etc/cron.weekly/btrfs-tools-snapshots
+
 chmod +x /etc/cron.daily/btrfs-tools-snapshots
 chmod +x /etc/cron.weekly/btrfs-tools-snapshots
 
