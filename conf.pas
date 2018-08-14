@@ -14,6 +14,8 @@ type
 
   TFConf = class(TForm)
     BitBtn1: TBitBtn;
+    restart_dbus: TCheckBox;
+    Label10: TLabel;
     Label9: TLabel;
     newrootsnapshot: TCheckBox;
     GroupBox1: TGroupBox;
@@ -36,6 +38,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure maxmigawekChange(Sender: TObject);
     procedure newrootsnapshotChange(Sender: TObject);
+    procedure restart_dbusChange(Sender: TObject);
     procedure updategrubChange(Sender: TObject);
     procedure _AUTOWYZWALACZ(Sender: TObject);
   private
@@ -83,6 +86,12 @@ begin
   dm.ini.WriteBool('back-root-gen-snapshot',_BACK_ROOT_GEN_SNAPSHOT);
 end;
 
+procedure TFConf.restart_dbusChange(Sender: TObject);
+begin
+  _RESTART_DBUS:=restart_dbus.Checked;
+  dm.ini.WriteBool('restart-dbus',_RESTART_DBUS);
+end;
+
 procedure TFConf.updategrubChange(Sender: TObject);
 begin
   _UPDATE_GRUB:=updategrub.Checked;
@@ -125,6 +134,7 @@ begin
   updategrub.Checked:=_UPDATE_GRUB;
   maxmigawek.Value:=_MAX_COUNT_SNAPSHOTS;
   newrootsnapshot.Checked:=_BACK_ROOT_GEN_SNAPSHOT;
+  restart_dbus.Checked:=_RESTART_DBUS;
 end;
 
 end.

@@ -1,11 +1,11 @@
 object FConf: TFConf
   Left = 737
-  Height = 602
+  Height = 695
   Top = 224
   Width = 665
   BorderStyle = bsDialog
   Caption = 'Opcje'
-  ClientHeight = 602
+  ClientHeight = 695
   ClientWidth = 665
   DesignTimePPI = 94
   OnClose = FormClose
@@ -57,7 +57,7 @@ object FConf: TFConf
     AnchorSideBottom.Side = asrBottom
     Left = 580
     Height = 31
-    Top = 563
+    Top = 656
     Width = 77
     Anchors = [akRight, akBottom]
     BorderSpacing.Right = 8
@@ -254,6 +254,39 @@ object FConf: TFConf
     BorderSpacing.Left = 37
     BorderSpacing.Top = 8
     Caption = 'Włączona uaktywnia utworzenie nowej migawki podczas cofania się do starej migawki.'
+    Font.Color = clMaroon
+    Font.Style = [fsItalic]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object restart_dbus: TCheckBox
+    AnchorSideLeft.Control = newrootsnapshot
+    AnchorSideTop.Control = Label9
+    AnchorSideTop.Side = asrBottom
+    Left = 8
+    Height = 22
+    Top = 570
+    Width = 555
+    BorderSpacing.Top = 12
+    Caption = 'Restart systemu za pomocą szyny D-BUS, a nie za pomocą "shutdown -r now" (tylko KDE)'
+    OnChange = restart_dbusChange
+    TabOrder = 5
+  end
+  object Label10: TLabel
+    AnchorSideLeft.Control = updategrub
+    AnchorSideTop.Control = restart_dbus
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = GroupBox1
+    AnchorSideRight.Side = asrBottom
+    Left = 45
+    Height = 54
+    Top = 600
+    Width = 612
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Left = 37
+    BorderSpacing.Top = 8
+    Caption = 'Domyślnie system restartowany jest za pomocą polecenia "shutdown -r now", jeśli pracujesz w środowisku graficznym KDE, możesz spróbować użycia tej opcji. Jest to o wiele lepsze rozwiązanie gdy działa, jeśli nie działa prawidłowo na twoim systemie, wyłącz tą opcję.'
     Font.Color = clMaroon
     Font.Style = [fsItalic]
     ParentColor = False

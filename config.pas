@@ -107,6 +107,7 @@ var
   _AUTO_RUN: boolean = false;
   _GUI_ONLYROOT: boolean = true;
   _BACK_ROOT_GEN_SNAPSHOT: boolean = false;
+  _RESTART_DBUS: boolean = false;
   dm: Tdm;
   TextSeparator: char;
 
@@ -217,6 +218,11 @@ begin
     t.Add('#Domyślnie opcja jest wyłączona.');
     t.Add('#Dozwolone wartości to: yes|no');
     t.Add('back-root-gen-snapshot=no');
+    t.Add('');
+    t.Add('#Restartuj system wysyłając sygnał do szyny D-BUS (domyślnie wyłączona).');
+    t.Add('#Opcja powinna działać gdy używasz środowiska KDE, jeśli nie działa prawidłowo - wyłącz ją.');
+    t.Add('#Dozwolone wartości to: yes|no');
+    t.Add('restart-dbus=no');
     if inny_plik='' then
     begin
       tab.Assign(t);
@@ -536,10 +542,23 @@ begin
   ss.Clear;
   proc.Parameters.Clear;
   proc.Options:=[];
-  proc.Executable:='shutdown';
-  proc.Parameters.Add('-r');
-  proc.Parameters.Add('now');
-  if _TEST then writeln('shutdown -r now') else proc.Execute;
+  if _RESTART_DBUS then
+  begin
+    proc.Executable:='qdbus';
+    proc.Parameters.Add('org.kde.ksmserver');
+    proc.Parameters.Add('/KSMServer');
+    proc.Parameters.Add('logout');
+    proc.Parameters.Add('0');
+    proc.Parameters.Add('2');
+    proc.Parameters.Add('2');
+    if _TEST then writeln('qdbus org.kde.ksmserver /KSMServer logout 0 2 2');
+  end else begin
+    proc.Executable:='shutdown';
+    proc.Parameters.Add('-r');
+    proc.Parameters.Add('now');
+    if _TEST then writeln('shutdown -r now');
+  end;
+  if not _TEST then proc.Execute;
 end;
 
 function Tdm.spakuj(katalog: string): integer;
@@ -781,6 +800,7 @@ begin
   _AUTO_RUN:=dm.ini.ReadBool('auto-run',false);
   _GUI_ONLYROOT:=dm.ini.ReadBool('gui-onlyroot',true);
   _BACK_ROOT_GEN_SNAPSHOT:=dm.ini.ReadBool('back-root-gen-snapshot',false);
+  _RESTART_DBUS:=dm.ini.ReadBool('restart-dbus',false);
 end;
 
 function Tdm.wersja: string;
