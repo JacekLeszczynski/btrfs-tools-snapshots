@@ -147,6 +147,7 @@ procedure TFMain.MenuKonfiguracjaClick(Sender: TObject);
 begin
   FConf:=TFConf.Create(self);
   FConf.ShowModal;
+  if _FORCE_REBOOT then close;
 end;
 
 procedure TFMain.init;

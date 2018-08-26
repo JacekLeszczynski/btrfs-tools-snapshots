@@ -109,6 +109,7 @@ begin
   Application.Title:=Title;
   Application.Run;
   dm.odmontuj(_MNT,true);
+  if _FORCE_REBOOT then dm.reboot;
   Terminate;
   exit;
   {$ELSE}
@@ -188,6 +189,7 @@ begin
   if dm.params.IsParam('auto') then dm.autoprogram(dm.params.GetValue('trigger'));
   dm.odmontuj_all;
   if dm.params.IsParam('postinst') then dm.postinst;
+  if _FORCE_REBOOT then dm.reboot;
   Terminate;
   {$ENDIF}
 end;

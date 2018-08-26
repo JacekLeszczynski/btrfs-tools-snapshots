@@ -48,7 +48,6 @@ type
     function sciezka_wstecz(sciezka: string): string;
     function sciezka_nazwa_katalogu(sciezka: string): string;
     function sciezka_normalizacja(sciezka: string): string;
-    procedure reboot;
     function spakuj(katalog: string): integer;
     function rozpakuj(katalog: string): integer;
     function wyczysc_zasob(katalog: string): integer;
@@ -64,6 +63,7 @@ type
     destructor Destroy; override;
     function init: boolean;
     function wersja: string;
+    procedure reboot;
     procedure postinst;
     procedure zamontuj(device,mnt,subvol: string; force: boolean = false);
     procedure odmontuj(mnt: string; force: boolean = false);
@@ -108,6 +108,7 @@ var
   _GUI_ONLYROOT: boolean = true;
   _BACK_ROOT_GEN_SNAPSHOT: boolean = false;
   _RESTART_DBUS: boolean = false;
+  _FORCE_REBOOT: boolean = false;
   dm: Tdm;
   TextSeparator: char;
 
@@ -537,30 +538,6 @@ begin
   result:=s;
 end;
 
-procedure Tdm.reboot;
-begin
-  ss.Clear;
-  proc.Parameters.Clear;
-  proc.Options:=[];
-  if _RESTART_DBUS then
-  begin
-    proc.Executable:='qdbus';
-    proc.Parameters.Add('org.kde.ksmserver');
-    proc.Parameters.Add('/KSMServer');
-    proc.Parameters.Add('logout');
-    proc.Parameters.Add('0');
-    proc.Parameters.Add('2');
-    proc.Parameters.Add('2');
-    if _TEST then writeln('qdbus org.kde.ksmserver /KSMServer logout 0 2 2');
-  end else begin
-    proc.Executable:='shutdown';
-    proc.Parameters.Add('-r');
-    proc.Parameters.Add('now');
-    if _TEST then writeln('shutdown -r now');
-  end;
-  if not _TEST then proc.Execute;
-end;
-
 function Tdm.spakuj(katalog: string): integer;
 var
   pom,workdir,nazwa,plik: string;
@@ -809,6 +786,47 @@ var
 begin
   cverinfo.GetProgramVersion(major,minor,release,build);
   result:=IntToStr(major)+'.'+IntToStr(minor)+'.'+IntToStr(release)+'-'+IntToStr(build);
+end;
+
+procedure Tdm.reboot;
+var
+  i: integer;
+  kdeuser,s: string;
+begin
+  ss.Clear;
+  if _RESTART_DBUS then
+  begin
+    (* pobranie usera *)
+    kdeuser:='';
+    proc.Parameters.Clear;
+    proc.Options:=[poWaitOnExit,poUsePipes];
+    proc.Executable:='w';
+    proc.Parameters.Add('-h');
+    proc.Execute;
+    ss.LoadFromStream(proc.Output);
+    for i:=0 to ss.Count-1 do
+    begin
+      s:=ss[i];
+      if pos('startkde',s)>0 then
+      begin
+        kdeuser:=GetLineToStr(s,1,#32);
+        break;
+      end;
+    end;
+    if kdeuser<>'' then
+    begin
+      (* wykonanie operacji *)
+      if _TEST then writeln('su -c "qdbus org.kde.ksmserver /KSMServer logout 0 1 1" '+kdeuser);
+      if not _TEST then fpsystem('su -c "qdbus org.kde.ksmserver /KSMServer logout 0 1 1" '+kdeuser);
+    end;
+  end else begin
+    proc.Options:=[];
+    proc.Executable:='shutdown';
+    proc.Parameters.Add('-r');
+    proc.Parameters.Add('now');
+    if _TEST then writeln('shutdown -r now');
+    if not _TEST then proc.Execute;
+  end;
 end;
 
 procedure Tdm.postinst;
@@ -1584,7 +1602,7 @@ begin
   proc.CurrentDirectory:='';
   odmontuj(_MNT);
   (* restart *)
-  reboot;
+  _FORCE_REBOOT:=true;
 end;
 
 procedure Tdm.usun_stare_migawki;

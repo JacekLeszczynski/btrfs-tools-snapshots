@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Spin,
-  Buttons, ExtCtrls;
+  Buttons, ExtCtrls, ExtMessage;
 
 type
 
@@ -14,6 +14,8 @@ type
 
   TFConf = class(TForm)
     BitBtn1: TBitBtn;
+    BitBtn2: TBitBtn;
+    mess: TExtMessage;
     restart_dbus: TCheckBox;
     Label10: TLabel;
     Label9: TLabel;
@@ -34,6 +36,7 @@ type
     Label2: TLabel;
     maxmigawek: TSpinEdit;
     procedure BitBtn1Click(Sender: TObject);
+    procedure BitBtn2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormShow(Sender: TObject);
     procedure maxmigawekChange(Sender: TObject);
@@ -62,6 +65,16 @@ uses
 procedure TFConf.BitBtn1Click(Sender: TObject);
 begin
   close;
+end;
+
+procedure TFConf.BitBtn2Click(Sender: TObject);
+begin
+  showmessage('System zostanie zrestartowany za pomocą ustawionego sygnału restartowania systemu. Nic więcej nie będzie wykonywane. Opcja służy do przetestowania poprawności wykonywania tej operacji.');
+  if mess.ShowConfirmationYesNo('Kontynuować ?') then
+  begin
+    _FORCE_REBOOT:=true;
+    close;
+  end;
 end;
 
 procedure TFConf.FormClose(Sender: TObject; var CloseAction: TCloseAction);

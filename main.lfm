@@ -68,7 +68,7 @@ object FMain: TFMain
     Top = 72
     Width = 169
     Caption = 'Przywróć do migawki'
-    Font.Color = clRed
+    Color = clRed
     OnClick = BitBtn4Click
     ParentFont = False
     TabOrder = 4
