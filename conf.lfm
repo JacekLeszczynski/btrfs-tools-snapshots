@@ -17,9 +17,9 @@ object FConf: TFConf
     AnchorSideTop.Control = GroupBox1
     AnchorSideTop.Side = asrBottom
     Left = 8
-    Height = 22
+    Height = 21
     Top = 278
-    Width = 292
+    Width = 293
     BorderSpacing.Top = 12
     Caption = 'Automatyczna aktualizacja menu startowego'
     OnChange = updategrubChange
@@ -31,8 +31,8 @@ object FConf: TFConf
     AnchorSideTop.Side = asrBottom
     Left = 8
     Height = 18
-    Top = 392
-    Width = 223
+    Top = 391
+    Width = 222
     BorderSpacing.Top = 12
     Caption = 'Maksymalna ilość migawek na dysku:'
     ParentColor = False
@@ -42,8 +42,8 @@ object FConf: TFConf
     AnchorSideTop.Control = Label2
     AnchorSideTop.Side = asrBottom
     Left = 8
-    Height = 26
-    Top = 410
+    Height = 28
+    Top = 409
     Width = 280
     MaxValue = 10
     OnChange = maxmigawekChange
@@ -101,14 +101,14 @@ object FConf: TFConf
     Anchors = [akTop, akLeft, akRight]
     BorderSpacing.Top = 8
     Caption = 'Auto-wyzwalacz:'
-    ClientHeight = 212
-    ClientWidth = 645
+    ClientHeight = 213
+    ClientWidth = 647
     TabOrder = 3
     object RadioButton1: TRadioButton
       Left = 8
-      Height = 22
+      Height = 21
       Top = 8
-      Width = 87
+      Width = 88
       Caption = 'Wyłączony'
       Checked = True
       OnChange = _AUTOWYZWALACZ
@@ -117,9 +117,9 @@ object FConf: TFConf
     end
     object RadioButton2: TRadioButton
       Left = 8
-      Height = 22
+      Height = 21
       Top = 56
-      Width = 59
+      Width = 58
       Caption = 'DPKG'
       OnChange = _AUTOWYZWALACZ
       TabOrder = 1
@@ -128,7 +128,7 @@ object FConf: TFConf
       Left = 56
       Height = 18
       Top = 32
-      Width = 202
+      Width = 200
       Caption = ' Migawki automatyczne wyłączone. '
       Font.Color = clMaroon
       Font.Style = [fsItalic]
@@ -139,7 +139,7 @@ object FConf: TFConf
       Left = 56
       Height = 18
       Top = 80
-      Width = 398
+      Width = 395
       Caption = ' Migawki wyzwalane automatycznie podczas aktualizowania systemu. '
       Font.Color = clMaroon
       Font.Style = [fsItalic]
@@ -148,9 +148,9 @@ object FConf: TFConf
     end
     object RadioButton3: TRadioButton
       Left = 8
-      Height = 22
+      Height = 21
       Top = 104
-      Width = 86
+      Width = 85
       Caption = 'Cron.Daily'
       OnChange = _AUTOWYZWALACZ
       TabOrder = 2
@@ -159,7 +159,7 @@ object FConf: TFConf
       Left = 56
       Height = 18
       Top = 128
-      Width = 336
+      Width = 333
       Caption = ' Migawki wyzwalane automatycznie z Crona każdego dnia. '
       Font.Color = clMaroon
       Font.Style = [fsItalic]
@@ -170,7 +170,7 @@ object FConf: TFConf
       Left = 56
       Height = 18
       Top = 184
-      Width = 339
+      Width = 336
       Caption = ' Migawki wyzwalane automatycznie z Crona raz na tydzień. '
       Font.Color = clMaroon
       Font.Style = [fsItalic]
@@ -179,9 +179,9 @@ object FConf: TFConf
     end
     object RadioButton4: TRadioButton
       Left = 8
-      Height = 22
+      Height = 21
       Top = 160
-      Width = 98
+      Width = 99
       Caption = 'Cron.Weekly'
       OnChange = _AUTOWYZWALACZ
       TabOrder = 3
@@ -195,7 +195,7 @@ object FConf: TFConf
     AnchorSideRight.Side = asrBottom
     Left = 45
     Height = 72
-    Top = 308
+    Top = 307
     Width = 612
     Anchors = [akTop, akLeft, akRight]
     BorderSpacing.Left = 37
@@ -215,7 +215,7 @@ object FConf: TFConf
     AnchorSideRight.Side = asrBottom
     Left = 45
     Height = 54
-    Top = 444
+    Top = 445
     Width = 612
     Anchors = [akTop, akLeft, akRight]
     BorderSpacing.Left = 37
@@ -232,9 +232,9 @@ object FConf: TFConf
     AnchorSideTop.Control = Label8
     AnchorSideTop.Side = asrBottom
     Left = 8
-    Height = 22
-    Top = 510
-    Width = 581
+    Height = 21
+    Top = 511
+    Width = 580
     BorderSpacing.Top = 12
     Caption = 'Automatycznie twórz migawkę, gdy system zostanie cofnięty do wcześniej zrobionej migawki.'
     OnChange = newrootsnapshotChange
@@ -265,9 +265,9 @@ object FConf: TFConf
     AnchorSideTop.Control = Label9
     AnchorSideTop.Side = asrBottom
     Left = 8
-    Height = 22
+    Height = 21
     Top = 570
-    Width = 555
+    Width = 552
     BorderSpacing.Top = 12
     Caption = 'Restart systemu za pomocą szyny D-BUS, a nie za pomocą "shutdown -r now" (tylko KDE)'
     OnChange = restart_dbusChange
@@ -281,12 +281,12 @@ object FConf: TFConf
     AnchorSideRight.Side = asrBottom
     Left = 45
     Height = 54
-    Top = 600
+    Top = 599
     Width = 612
     Anchors = [akTop, akLeft, akRight]
     BorderSpacing.Left = 37
     BorderSpacing.Top = 8
-    Caption = 'Domyślnie system restartowany jest za pomocą polecenia "shutdown -r now", jeśli pracujesz w środowisku graficznym KDE, możesz spróbować użycia tej opcji. Jest to o wiele lepsze rozwiązanie gdy działa, jeśli nie działa prawidłowo na twoim systemie, wyłącz tą opcję.'
+    Caption = 'Domyślnie system restartowany jest za pomocą polecenia "shutdown -r now", jeśli pracujesz w środowisku graficznym KDE, możesz spróbować użycia tej opcji. Jest to o wiele lepsze rozwiązanie gdy działa, jeśli nie działa prawidłowo na twoim systemie, wyłącz tę opcję.'
     Font.Color = clMaroon
     Font.Style = [fsItalic]
     ParentColor = False

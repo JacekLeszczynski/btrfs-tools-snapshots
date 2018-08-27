@@ -134,7 +134,7 @@ begin
   begin
     BitBtn1.Enabled:=false;
     BitBtn2.Enabled:=false;
-    BitBtn4.Enabled:=true;
+    BitBtn4.Enabled:=lMount.Count>0;
   end else BitBtn4.Enabled:=false;
 end;
 
@@ -161,7 +161,7 @@ begin
     lMount.Items.Assign(dm.wczytaj_woluminy(true))
   else
     lMount.Items.Assign(dm.wczytaj_woluminy);
-  lMount.ItemIndex:=0;
+  if lMount.Items.Count>0 then lMount.ItemIndex:=0;
   refresh_przyciski;
 end;
 

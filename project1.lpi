@@ -12,8 +12,8 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
-      <MinorVersionNr Value="8"/>
-      <RevisionNr Value="8"/>
+      <MinorVersionNr Value="9"/>
+      <RevisionNr Value="1"/>
       <BuildNr Value="1"/>
       <Attributes pvaPreRelease="True"/>
       <StringTable InternalName="btrfs-tools-snapshots" LegalCopyright="GPL (ver. 3)" OriginalFilename="btrfs-tools-snapshots" ProductName="BTRFS Tools Snapshots" ProductVersion="0.8.3"/>

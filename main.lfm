@@ -21,7 +21,7 @@ object FMain: TFMain
     Width = 632
     ItemHeight = 0
     OnClick = lMountClick
-    ScrollWidth = 628
+    ScrollWidth = 630
     TabOrder = 0
     TopIndex = -1
   end
