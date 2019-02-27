@@ -1,72 +1,76 @@
 object FMain: TFMain
   Left = 289
-  Height = 540
+  Height = 551
   Top = 153
-  Width = 826
+  Width = 844
   BorderStyle = bsSingle
   Caption = 'Btrfs Tools'
-  ClientHeight = 512
-  ClientWidth = 826
-  DesignTimePPI = 94
+  ClientHeight = 524
+  ClientWidth = 844
   Menu = MainMenu1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.9.0.0'
+  LCLVersion = '2.0.0.4'
   object lMount: TListBox
     Left = 8
-    Height = 496
+    Height = 507
     Top = 8
-    Width = 632
+    Width = 645
     ItemHeight = 0
     OnClick = lMountClick
-    ScrollWidth = 630
+    ParentFont = False
+    ScrollWidth = 643
     TabOrder = 0
     TopIndex = -1
   end
   object BitBtn1: TBitBtn
-    Left = 648
-    Height = 29
+    Left = 662
+    Height = 30
     Top = 8
-    Width = 169
+    Width = 173
     Caption = 'Utwórz migawkę'
     OnClick = BitBtn1Click
+    ParentFont = False
     TabOrder = 1
   end
   object BitBtn2: TBitBtn
-    Left = 648
-    Height = 29
-    Top = 40
-    Width = 169
+    Left = 662
+    Height = 30
+    Top = 41
+    Width = 173
     Caption = 'Usuń migawkę'
     OnClick = BitBtn2Click
+    ParentFont = False
     TabOrder = 2
   end
   object BitBtn3: TBitBtn
-    Left = 648
-    Height = 29
-    Top = 440
-    Width = 169
+    Left = 662
+    Height = 30
+    Top = 449
+    Width = 173
     Caption = 'Generuj Menu Startowe'
     OnClick = BitBtn3Click
+    ParentFont = False
     TabOrder = 3
     Visible = False
   end
   object BitBtn6: TBitBtn
-    Left = 648
-    Height = 29
-    Top = 475
-    Width = 169
+    Left = 662
+    Height = 30
+    Top = 485
+    Width = 173
     Caption = 'Wyjście'
     OnClick = BitBtn6Click
+    ParentFont = False
     TabOrder = 5
   end
   object BitBtn4: TBitBtn
-    Left = 648
-    Height = 80
-    Top = 72
-    Width = 169
+    Left = 662
+    Height = 82
+    Top = 74
+    Width = 173
     Caption = 'Przywróć do migawki'
     Color = clRed
     OnClick = BitBtn4Click
@@ -80,12 +84,12 @@ object FMain: TFMain
     PosTop = 0
     PosLeft = 0
     StringToCR = '^'
-    left = 96
-    top = 56
+    left = 98
+    top = 57
   end
   object MainMenu1: TMainMenu
-    left = 312
-    top = 176
+    left = 319
+    top = 180
     object MenuKonfiguracja: TMenuItem
       Caption = 'Konfiguracja'
       OnClick = MenuKonfiguracjaClick

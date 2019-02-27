@@ -1485,7 +1485,7 @@ begin
           s:=StringReplace(s,'   \> ','',[]);
           nazwa:=GetLineToStr(s,9,' ');
           dzien:=GetLineToStr(nazwa,2,'_');
-          ss.Add(StringReplace(StringReplace(wzor,'subvol=@','subvol='+nazwa,[rfReplaceAll]),'$MIGAWKA$','Migawka z dnia: '+dzien,[]));
+          ss.Add(StringReplace( StringReplace(StringReplace(wzor,'subvol=@','subvol='+nazwa,[rfReplaceAll]),'$MIGAWKA$','Migawka z dnia: '+dzien,[]),'/@/boot/','/'+nazwa+'/boot/',[rfReplaceAll]));
         end;
       end;
     end;
